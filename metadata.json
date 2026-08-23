@@ -1,0 +1,6 @@
+{
+  "name": "Tactical RPG",
+  "description": "Tactical neo-medieval turn-based RPG mobile game UI in landscape orientation with team management, battle formations, and strategy minigame.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

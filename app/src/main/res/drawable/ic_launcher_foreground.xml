@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Center Shield Background -->
+    <path
+        android:pathData="M54,24 L76,32 L76,56 C76,70 66,82 54,86 C42,82 32,70 32,56 L32,32 Z"
+        android:fillColor="#3C5A4D"
+        android:strokeColor="#B57A3A"
+        android:strokeWidth="2.5" />
+
+    <!-- Inner Shield Inlay -->
+    <path
+        android:pathData="M54,29 L71,36 L71,55 C71,66 63,76 54,80 C45,76 37,66 37,55 L37,36 Z"
+        android:fillColor="#24342E"
+        android:strokeColor="#7B8F7A"
+        android:strokeWidth="1" />
+
+    <!-- Crossed Swords / Medieval Emblem -->
+    <path
+        android:pathData="M54,34 L54,74"
+        android:strokeColor="#D2C6A3"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M45,43 L63,43"
+        android:strokeColor="#B57A3A"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M54,32 L51,36 L57,36 Z"
+        android:fillColor="#D2C6A3" />
+    <path
+        android:pathData="M52,75 L56,75 L56,78 L52,78 Z"
+        android:fillColor="#B57A3A" />
+</vector>
