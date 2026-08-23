@@ -1,5 +1,6 @@
 package com.example.ui.dialogs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,12 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.model.StrategyRollResult
 import com.example.ui.components.MedievalButton
 import com.example.ui.theme.*
@@ -42,201 +42,247 @@ fun StrategyModal(
     onConfirmBonus: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.70f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(DeepSlateScrim)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .widthIn(max = 520.dp)
+                .fillMaxWidth(0.92f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* Consume click inside */ }
+                .clip(RoundedCornerShape(22.dp))
+                .background(DeepSlateDark)
+                .border(1.5.dp, SageOlive.copy(alpha = 0.6f), RoundedCornerShape(22.dp))
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.90f)
-                    .heightIn(max = 480.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(PineGreen)
-                    .border(1.5.dp, SageOlive, RoundedCornerShape(20.dp))
-                    .padding(horizontal = 18.dp, vertical = 12.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                // Header (Aligned with AttackModal style: Title + Close Button)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Header (Matches wireframe: "Elige un numero (?)" + Close X)
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Text(
-                                text = "Elige un número",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = WarmCream,
-                                    fontSize = 16.sp
-                                )
+                        Text(
+                            text = "Estrategia",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = WarmCreamBright,
+                                fontSize = 18.sp,
+                                fontFamily = FontFamily.Monospace
                             )
-                            Icon(
-                                imageVector = Icons.Default.HelpOutline,
-                                contentDescription = "Ayuda de estrategia",
-                                tint = SageOlive,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = onDismiss,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
-                                tint = WarmCream
-                            )
-                        }
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Casino,
+                            contentDescription = "Dado táctico",
+                            tint = AntiqueBronze,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar",
+                            tint = WarmCreamBright,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
 
-                    if (!isFinished && !isRolling) {
-                        // State 1: Guessing number (1-6) - matches wireframe
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Elegir un numero entre 1-6",
-                                style = MaterialTheme.typography.bodySmall.copy(color = SageOlive)
-                            )
+                // Horizontal accent divider line
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(SageOlive.copy(alpha = 0.35f))
+                )
 
-                            // Row of 6 clickable number buttons (1 to 6, min 48x48dp)
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                for (num in 1..6) {
-                                    val isSelected = selectedNumber == num
-                                    Box(
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(if (isSelected) AntiqueBronze else DarkPineGreen)
-                                            .border(
-                                                1.dp,
-                                                if (isSelected) AntiqueBronzeBright else SageOlive,
-                                                RoundedCornerShape(8.dp)
-                                            )
-                                            .clickable { onSelectNumber(num) },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "$num",
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                color = if (isSelected) DeepSlate else WarmCream,
-                                                fontSize = 18.sp
-                                            )
-                                        )
-                                    }
-                                }
-                            }
+                if (!isFinished && !isRolling) {
+                    // State 1: Guessing number (1-6)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "Elige un número del 1 al 6 para lanzar la táctica:",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = WarmCreamMuted,
+                                fontSize = 13.sp,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            textAlign = TextAlign.Center
+                        )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // [Elegir] CTA button (matches wireframe)
-                            MedievalButton(
-                                text = "Elegir",
-                                onClick = onRollClicked,
-                                leadingIcon = Icons.Default.Casino,
-                                modifier = Modifier.height(44.dp)
-                            )
-                        }
-                    } else if (isRolling) {
-                        // Rolling Animation
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        ) {
-                            Text(
-                                text = "$displayNumber",
-                                style = MaterialTheme.typography.displayLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 48.sp,
-                                    color = AntiqueBronzeBright
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Lanzando dado estratégico...",
-                                style = MaterialTheme.typography.bodySmall.copy(color = SageOlive)
-                            )
-                        }
-                    } else {
-                        // State 2: Result (Matches wireframe: Big green '3', "Perfecto! ganaste un bono")
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        // Row of 6 clickable number buttons (1 to 6)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 4.dp)
                         ) {
-                            val win = outcome?.isWin == true
-                            val resultNumber = outcome?.rolledNumber ?: displayNumber
-
-                            Text(
-                                text = "$resultNumber",
-                                style = MaterialTheme.typography.displayLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 52.sp,
-                                    color = if (win) HealthGreen else HealthYellow
-                                )
-                            )
-
-                            Text(
-                                text = outcome?.message ?: "¡Resultado estratégico!",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (win) HealthGreen else WarmCream,
-                                    fontSize = 14.sp
-                                ),
-                                textAlign = TextAlign.Center
-                            )
-
-                            // Bonus badge tag
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(if (win) HealthGreen.copy(alpha = 0.2f) else HealthYellow.copy(alpha = 0.2f))
-                                    .border(1.dp, if (win) HealthGreen else HealthYellow, RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = if (win) "+15% Daño (1 Ronda)" else "-5% Daño menor",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        color = if (win) HealthGreen else HealthYellow,
-                                        fontWeight = FontWeight.Bold
+                            for (num in 1..6) {
+                                val isSelected = selectedNumber == num
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(if (isSelected) AntiqueBronze else DeepSlate)
+                                        .border(
+                                            if (isSelected) 1.5.dp else 1.dp,
+                                            if (isSelected) AntiqueBronzeBright else SageOlive.copy(alpha = 0.5f),
+                                            RoundedCornerShape(10.dp)
+                                        )
+                                        .clickable { onSelectNumber(num) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "$num",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) DeepSlateDark else WarmCreamBright,
+                                            fontSize = 18.sp,
+                                            fontFamily = FontFamily.Monospace
+                                        )
                                     )
-                                )
+                                }
                             }
+                        }
 
-                            Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Si aciertas el resultado del dado obtendrás bonificación de combate.",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = SageOlive,
+                                fontSize = 11.5.sp,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            textAlign = TextAlign.Center
+                        )
 
-                            MedievalButton(
-                                text = "Confirmar Bono",
-                                onClick = onConfirmBonus,
-                                modifier = Modifier.height(42.dp)
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // [Elegir] CTA button
+                        MedievalButton(
+                            text = "Lanzar Dado",
+                            onClick = onRollClicked,
+                            leadingIcon = Icons.Default.Casino,
+                            modifier = Modifier
+                                .fillMaxWidth(0.65f)
+                                .height(44.dp)
+                        )
+                    }
+                } else if (isRolling) {
+                    // Rolling Animation
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(vertical = 20.dp)
+                    ) {
+                        Text(
+                            text = "$displayNumber",
+                            style = MaterialTheme.typography.displayLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 52.sp,
+                                color = AntiqueBronzeBright,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Lanzando dado táctico...",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = WarmCreamMuted,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+                    }
+                } else {
+                    // State 2: Result
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    ) {
+                        val win = outcome?.isWin == true
+                        val resultNumber = outcome?.rolledNumber ?: displayNumber
+
+                        Text(
+                            text = "$resultNumber",
+                            style = MaterialTheme.typography.displayLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 54.sp,
+                                color = if (win) HealthGreen else HealthYellow,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+
+                        Text(
+                            text = outcome?.message ?: "¡Resultado estratégico!",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = if (win) HealthGreen else WarmCreamBright,
+                                fontSize = 15.sp,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Bonus badge tag in DeepSlate container with matching border
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(DeepSlate)
+                                .border(
+                                    1.dp,
+                                    if (win) HealthGreen else HealthYellow.copy(alpha = 0.7f),
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = if (win) "★ +15% Daño otorgado (1 Ronda)" else "⚡ -5% Efectividad menor",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = if (win) HealthGreen else HealthYellow,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 12.sp
+                                )
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        MedievalButton(
+                            text = "Confirmar Bono",
+                            onClick = onConfirmBonus,
+                            modifier = Modifier
+                                .fillMaxWidth(0.65f)
+                                .height(44.dp)
+                        )
                     }
                 }
             }

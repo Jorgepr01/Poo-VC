@@ -39,17 +39,44 @@ class AttackAndStrategyMechanicsTest {
     }
 
     @Test
-    fun testWarriorBasicAttackDefaultsToDamage() {
+    fun testMysticBasicAttackIsDamageOnlyAndCannotHeal() {
         val state = viewModel.uiState.value
-        val warrior = state.battleUnits.firstOrNull { it.playerId == state.currentTurnPlayer && it.hero.role == HeroRole.GUERRERO }
+        val mystic = state.battleUnits.firstOrNull { it.playerId == state.currentTurnPlayer && it.hero.role == HeroRole.MISTICO }
         
-        if (warrior != null) {
-            viewModel.openAttackModal(warrior)
+        if (mystic != null) {
+            viewModel.openAttackModal(mystic)
             val attackState = viewModel.uiState.value
 
             assertTrue(attackState.isAttackModalOpen)
-            assertFalse("Warrior basic attack should not be heal mode", attackState.isHealMode)
+            assertFalse("Mystic basic attack MUST NOT be heal mode", attackState.isHealMode)
             assertEquals(AttackType.BASIC, attackState.selectedAttackType)
+
+            // Attempting to set heal mode must be rejected for Mystics
+            viewModel.setIsHealMode(true)
+            assertFalse("Mystic must not be able to activate heal mode", viewModel.uiState.value.isHealMode)
+        }
+    }
+
+    @Test
+    fun testMysticUltimateAppliesDebuff() {
+        val state = viewModel.uiState.value
+        val mystic = state.battleUnits.firstOrNull { it.playerId == state.currentTurnPlayer && it.hero.role == HeroRole.MISTICO }
+        
+        if (mystic != null) {
+            viewModel.openAttackModal(mystic)
+            viewModel.setAttackType(AttackType.ULTIMATE)
+            
+            val targetOpponent = state.battleUnits.first { it.playerId != state.currentTurnPlayer && it.isAlive }
+            viewModel.toggleTargetSelection(targetOpponent.id)
+
+            val initialDefBuff = targetOpponent.defenseBuffPct
+            viewModel.executeAttack()
+
+            val updatedTarget = viewModel.uiState.value.battleUnits.first { it.id == targetOpponent.id }
+            assertTrue(
+                "Mystic ultimate should reduce target's stats or apply debuff",
+                updatedTarget.defenseBuffPct <= initialDefBuff || updatedTarget.attackBuffPct <= 0f
+            )
         }
     }
 

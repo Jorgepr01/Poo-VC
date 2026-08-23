@@ -243,10 +243,10 @@ private fun PlayerTeamColumn(
                 val isSelected = selectedTeam?.id == team.id
                 MedievalSurface(
                     isSelected = isSelected,
+                    onClick = { onTeamSelected(team) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .clickable { onTeamSelected(team) }
                 ) {
                     Row(
                         modifier = Modifier

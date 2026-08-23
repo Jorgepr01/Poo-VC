@@ -1,7 +1,10 @@
 package com.example.ui.dialogs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,8 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.ui.components.MedievalButton
 import com.example.ui.theme.*
 
@@ -29,26 +31,32 @@ import com.example.ui.theme.*
 fun RulesModal(
     onDismiss: () -> Unit
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DeepSlateScrim)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(DeepSlateScrim)
-                .padding(horizontal = 24.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center
+                .widthIn(max = 660.dp)
+                .fillMaxWidth(0.90f)
+                .fillMaxHeight(0.90f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* Consume click inside */ }
+                .clip(RoundedCornerShape(20.dp))
+                .background(PineGreen)
+                .border(1.5.dp, SageOlive, RoundedCornerShape(20.dp))
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.90f)
-                    .fillMaxHeight(0.88f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(PineGreen)
-                    .border(1.5.dp, SageOlive, RoundedCornerShape(20.dp))
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
-            ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Header
                     Row(
@@ -90,14 +98,14 @@ fun RulesModal(
                         item {
                             RuleItem(
                                 title = "1. Roles de los Personajes",
-                                desc = "• Guerreros: Vanguardia defensiva que absorbe impactos y protege a sus aliados traseros.\n• Místicos: Línea media de soporte táctico y daño equilibrado.\n• Magos: Retaguardia de gran poder arcano, cuyo ataque básico cura y restaura salud a sus compañeros."
+                                desc = "• Guerreros: Vanguardia defensiva que absorbe impactos y protege a sus aliados traseros.\n• Místicos: Línea media ofensiva y táctica. Su ataque básico solo ataca a los rivales, y sus Ultimates son habilidades especiales que benefician a su equipo o desbenefician al rival (reduciendo su defensa o su daño).\n• Magos: Retaguardia de gran poder arcano, cuyo ataque básico cura y restaura la salud de sus compañeros heridos."
                             )
                         }
 
                         item {
                             RuleItem(
                                 title = "2. Los 2 Tipos de Ataque",
-                                desc = "• Ataque Básico: Acción directa del héroe. Causa daño directo al rival o, en el caso del Mago, cura la salud de sus aliados.\n• Ataque Ultimate: Habilidad especial única de cada personaje con gran potencia destructiva, escudos o efectos avanzados."
+                                desc = "• Ataque Básico: Acción estándar del héroe. Causa daño directo al rival (o en el caso exclusivo del Mago, cura aliados).\n• Ataque Ultimate: Habilidad especial única de cada personaje (daño masivo, escudos, o en los Místicos, debilitar defensa/ataque enemigo y potenciar aliados)."
                             )
                         }
 
@@ -146,7 +154,6 @@ fun RulesModal(
             }
         }
     }
-}
 
 @Composable
 private fun RuleItem(title: String, desc: String) {

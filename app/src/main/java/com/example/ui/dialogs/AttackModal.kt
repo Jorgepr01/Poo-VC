@@ -1,5 +1,6 @@
 package com.example.ui.dialogs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,8 +23,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.model.AttackType
 import com.example.model.BattleUnit
 import com.example.model.HeroRole
@@ -53,7 +52,7 @@ fun AttackModal(
     onExecuteAttack: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val isMageOrMystic = attacker.hero.role == HeroRole.MAGO || attacker.hero.role == HeroRole.MISTICO
+    val isMage = attacker.hero.role == HeroRole.MAGO
     val isUltimate = selectedAttackType == AttackType.ULTIMATE
 
     // Damage bonus calculation for display
@@ -64,26 +63,32 @@ fun AttackModal(
     // Find the actual BattleUnit objects of the selected targets
     val selectedUnits = targetUnits.filter { selectedTargetIds.contains(it.id) }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.70f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.70f))
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center
+                .widthIn(max = 680.dp)
+                .fillMaxWidth(0.92f)
+                .fillMaxHeight(0.90f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* Consume click inside */ }
+                .clip(RoundedCornerShape(22.dp))
+                .background(DeepSlateDark)
+                .border(1.5.dp, SageOlive.copy(alpha = 0.6f), RoundedCornerShape(22.dp))
+                .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .fillMaxHeight(0.88f)
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(DeepSlateDark)
-                    .border(1.5.dp, SageOlive.copy(alpha = 0.6f), RoundedCornerShape(22.dp))
-                    .padding(horizontal = 18.dp, vertical = 14.dp)
-            ) {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -150,67 +155,138 @@ fun AttackModal(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // --- 2. TABS: "Basico | Ultimate" with underline ---
+                    // --- 2. TABS & MAGE MODE: "Basico | Ultimate" on left, "⚔ Atacar | ✚ Curar" on right ---
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Basico Tab
-                        Text(
-                            text = "Basico",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = if (!isUltimate) FontWeight.Bold else FontWeight.Normal,
-                                color = if (!isUltimate) HealthRed else WarmCreamBright,
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            modifier = Modifier
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-                                    onAttackTypeChanged(AttackType.BASIC)
-                                }
-                                .padding(end = 6.dp, top = 2.dp, bottom = 4.dp)
-                        )
+                        // Left: Tabs "Basico | Ultimate" with underline
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Basico Tab
+                                Text(
+                                    text = "Basico",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (!isUltimate) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (!isUltimate) HealthRed else WarmCreamBright,
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily.Monospace
+                                    ),
+                                    modifier = Modifier
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            onAttackTypeChanged(AttackType.BASIC)
+                                        }
+                                        .padding(end = 6.dp, top = 2.dp, bottom = 4.dp)
+                                )
 
-                        Text(
-                            text = "|",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = WarmCreamBright.copy(alpha = 0.6f),
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        )
+                                Text(
+                                    text = "|",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = WarmCreamBright.copy(alpha = 0.6f),
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily.Monospace
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
 
-                        // Ultimate Tab
-                        Text(
-                            text = "Ultimate",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = if (isUltimate) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isUltimate) HealthRed else WarmCreamBright,
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            modifier = Modifier
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
+                                // Ultimate Tab
+                                Text(
+                                    text = "Ultimate",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isUltimate) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isUltimate) HealthRed else WarmCreamBright,
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily.Monospace
+                                    ),
+                                    modifier = Modifier
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            onAttackTypeChanged(AttackType.ULTIMATE)
+                                        }
+                                        .padding(start = 6.dp, top = 2.dp, bottom = 4.dp)
+                                )
+                            }
+
+                            // Horizontal Underline under tabs
+                            Box(
+                                modifier = Modifier
+                                    .width(180.dp)
+                                    .height(1.5.dp)
+                                    .background(WarmCreamBright.copy(alpha = 0.75f))
+                            )
+                        }
+
+                        // Right: Optional Heal/Attack switch for Mago placed side-by-side with tabs
+                        if (isMage) {
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(DeepSlate)
+                                    .border(1.dp, SageOlive.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                    .padding(2.dp),
+                                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (!isHealMode) DeepSlateDark else Color.Transparent)
+                                        .border(
+                                            1.dp,
+                                            if (!isHealMode) HealthRed.copy(alpha = 0.9f) else Color.Transparent,
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable { onHealModeChanged(false) }
+                                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    onAttackTypeChanged(AttackType.ULTIMATE)
+                                    Text(
+                                        text = "⚔ Atacar",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            color = if (!isHealMode) WarmCreamBright else WarmCreamMuted.copy(alpha = 0.7f),
+                                            fontWeight = if (!isHealMode) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 11.5.sp,
+                                            fontFamily = FontFamily.Monospace
+                                        )
+                                    )
                                 }
-                                .padding(start = 6.dp, top = 2.dp, bottom = 4.dp)
-                        )
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isHealMode) DeepSlateDark else Color.Transparent)
+                                        .border(
+                                            1.dp,
+                                            if (isHealMode) HealthGreen.copy(alpha = 0.9f) else Color.Transparent,
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable { onHealModeChanged(true) }
+                                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "✚ Curar",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            color = if (isHealMode) HealthGreen else WarmCreamMuted.copy(alpha = 0.7f),
+                                            fontWeight = if (isHealMode) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 11.5.sp,
+                                            fontFamily = FontFamily.Monospace
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     }
-
-                    // Horizontal Underline under tabs (matching the wireframe line)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.65f)
-                            .height(1.5.dp)
-                            .background(WarmCreamBright.copy(alpha = 0.75f))
-                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -311,52 +387,6 @@ fun AttackModal(
                                 fontFamily = FontFamily.Monospace
                             )
                         )
-
-                        // Optional Heal switch for Mago / Místico
-                        if (isMageOrMystic) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(top = 4.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(DarkPineGreen)
-                                    .padding(2.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(if (!isHealMode) AntiqueBronze else Color.Transparent)
-                                        .clickable { onHealModeChanged(false) }
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "⚔️ Atacar",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            color = if (!isHealMode) DarkPineGreen else WarmCream,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp
-                                        )
-                                    )
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(if (isHealMode) HealthGreen else Color.Transparent)
-                                        .clickable { onHealModeChanged(true) }
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "💚 Curar Aliados",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            color = if (isHealMode) DarkPineGreen else WarmCream,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp
-                                        )
-                                    )
-                                }
-                            }
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -526,7 +556,6 @@ fun AttackModal(
             }
         }
     }
-}
 
 @Composable
 private fun TargetPickerDialog(
@@ -538,26 +567,32 @@ private fun TargetPickerDialog(
     onToggleTarget: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.75f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.75f))
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .widthIn(max = 580.dp)
+                .fillMaxWidth(0.90f)
+                .fillMaxHeight(0.85f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* Consume click inside */ }
+                .clip(RoundedCornerShape(16.dp))
+                .background(PineGreen)
+                .border(1.5.dp, AntiqueBronzeBright, RoundedCornerShape(16.dp))
+                .padding(14.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.90f)
-                    .fillMaxHeight(0.85f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(PineGreen)
-                    .border(1.5.dp, AntiqueBronzeBright, RoundedCornerShape(16.dp))
-                    .padding(14.dp)
-            ) {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -683,4 +718,3 @@ private fun TargetPickerDialog(
             }
         }
     }
-}

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.MedievalButton
@@ -33,34 +34,28 @@ fun TitleScreen(
         modifier = modifier
             .fillMaxSize()
             .background(DeepSlate)
-            .padding(horizontal = 32.dp, vertical = 20.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Main Neo-Medieval Title (matches wireframe 'Titulo')
+            Spacer(modifier = Modifier.weight(0.4f))
+
+            // Main Neo-Medieval Title positioned higher above menu
             Text(
-                text = "TÍTULO: REINOS EN GUERRA",
+                text = "Tournaments of the Old World",
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = WarmCream,
-                    fontSize = 30.sp,
-                    letterSpacing = 2.sp
-                )
-            )
-            
-            Text(
-                text = "Tácticas Neomedievales por Turnos",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = SageOlive,
-                    letterSpacing = 1.sp
-                )
+                    fontSize = 28.sp,
+                    letterSpacing = 2.5.sp
+                ),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.weight(0.8f))
 
             // Main Menu Buttons (Jugar, Equipos, Salir/Reglas)
             Column(
@@ -89,6 +84,8 @@ fun TitleScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            Spacer(modifier = Modifier.weight(0.6f))
         }
     }
 }

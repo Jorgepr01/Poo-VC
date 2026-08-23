@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -225,68 +226,73 @@ fun TacticalRpgApp(
 
             // 7. Abandon Match Confirmation
             if (state.isAbandonConfirmOpen) {
-                Dialog(
-                    onDismissRequest = { viewModel.openAbandonConfirm(false) },
-                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                androidx.activity.compose.BackHandler(onBack = { viewModel.openAbandonConfirm(false) })
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(DeepSlateScrim)
+                        .clickable(
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            indication = null
+                        ) { viewModel.openAbandonConfirm(false) },
+                    contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(DeepSlateScrim)
-                            .padding(20.dp),
-                        contentAlignment = Alignment.Center
+                            .widthIn(max = 460.dp)
+                            .fillMaxWidth(0.85f)
+                            .heightIn(max = 400.dp)
+                            .clickable(
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                indication = null
+                            ) { /* Consume click inside */ }
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(PineGreen)
+                            .border(1.5.dp, SageOlive, RoundedCornerShape(18.dp))
+                            .padding(20.dp)
                     ) {
-                        Box(
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth(0.85f)
-                                .heightIn(max = 400.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(PineGreen)
-                                .border(1.5.dp, SageOlive, RoundedCornerShape(18.dp))
-                                .padding(20.dp)
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            Text(
+                                text = "¿Abandonar la Partida?",
+                                style = MaterialTheme.typography.displaySmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = WarmCream,
+                                    fontSize = 18.sp
+                                )
+                            )
+
+                            Text(
+                                text = "El progreso actual de la batalla se perderá y regresarás al menú.",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = SageOlive
+                                )
+                            )
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = "¿Abandonar la Partida?",
-                                    style = MaterialTheme.typography.displaySmall.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = WarmCream,
-                                        fontSize = 18.sp
-                                    )
+                                MedievalSecondaryButton(
+                                    text = "Cancelar",
+                                    onClick = { viewModel.openAbandonConfirm(false) },
+                                    modifier = Modifier.weight(1f)
                                 )
 
-                                Text(
-                                    text = "El progreso actual de la batalla se perderá y regresarás al menú.",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        color = SageOlive
-                                    )
+                                MedievalButton(
+                                    text = "Salir",
+                                    onClick = {
+                                        viewModel.openAbandonConfirm(false)
+                                        viewModel.navigateTo(GameScreen.LOBBY)
+                                    },
+                                    modifier = Modifier.weight(1f)
                                 )
-
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    MedievalSecondaryButton(
-                                        text = "Cancelar",
-                                        onClick = { viewModel.openAbandonConfirm(false) },
-                                        modifier = Modifier.weight(1f)
-                                    )
-
-                                    MedievalButton(
-                                        text = "Salir",
-                                        onClick = {
-                                            viewModel.openAbandonConfirm(false)
-                                            viewModel.navigateTo(GameScreen.LOBBY)
-                                        },
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
                             }
                         }
                     }

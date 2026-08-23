@@ -37,21 +37,31 @@ import com.example.ui.theme.*
 fun MedievalSurface(
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
-    borderColor: Color = if (isSelected) AntiqueBronze else SageOlive,
+    onClick: (() -> Unit)? = null,
+    borderColor: Color = if (isSelected) AntiqueBronze else SageOlive.copy(alpha = 0.6f),
     borderWidth: Dp = if (isSelected) 2.dp else 1.dp,
-    backgroundColor: Color = PineGreen,
+    backgroundColor: Color = if (isSelected) LightPineGreen else PineGreen,
     shape: RoundedCornerShape = RoundedCornerShape(12.dp),
     content: @Composable BoxScope.() -> Unit
 ) {
+    val clickModifier = if (onClick != null) {
+        Modifier
+            .clip(shape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(bounded = true, color = AntiqueBronze),
+                onClick = onClick
+            )
+    } else {
+        Modifier
+    }
+
     Box(
         modifier = modifier
             .clip(shape)
             .background(backgroundColor)
             .border(borderWidth, borderColor, shape)
-            .then(
-                if (isSelected) Modifier.shadow(8.dp, shape, ambientColor = AntiqueBronze, spotColor = AntiqueBronze)
-                else Modifier
-            ),
+            .then(clickModifier),
         content = content
     )
 }

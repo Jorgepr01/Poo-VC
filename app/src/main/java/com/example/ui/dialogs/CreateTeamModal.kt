@@ -1,5 +1,6 @@
 package com.example.ui.dialogs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,8 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.model.Hero
 import com.example.model.HeroRole
 import com.example.model.Team
@@ -51,168 +50,173 @@ fun CreateTeamModal(
             misticos.size <= Team.MAX_MISTICOS &&
             magos.size <= Team.MAX_MAGOS
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    BackHandler(onBack = onDismiss)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DeepSlateScrim)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(DeepSlateScrim)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
+                .widthIn(max = 680.dp)
+                .fillMaxWidth(0.92f)
+                .fillMaxHeight(0.92f)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* Consume click inside */ }
+                .clip(RoundedCornerShape(20.dp))
+                .background(PineGreen)
+                .border(1.5.dp, SageOlive, RoundedCornerShape(20.dp))
+                .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .fillMaxHeight(0.90f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(PineGreen)
-                    .border(1.5.dp, SageOlive, RoundedCornerShape(20.dp))
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
+                // Modal Header (Title + Cap Indicator + Close X)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Modal Header (Title + Cap Indicator + Close X)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Crear equipo",
-                                style = MaterialTheme.typography.displaySmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = WarmCream,
-                                    fontSize = 18.sp
-                                )
+                    Column {
+                        Text(
+                            text = "Crear equipo",
+                            style = MaterialTheme.typography.displaySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = WarmCream,
+                                fontSize = 18.sp
                             )
-                            Text(
-                                text = "Total escuadrón: $totalHeroes/${Team.MAX_TOTAL_HEROES} héroes",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    color = if (totalHeroes == Team.MAX_TOTAL_HEROES) HealthGreen else SageOlive,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
+                        )
+                        Text(
+                            text = "Total escuadrón: $totalHeroes/${Team.MAX_TOTAL_HEROES} héroes",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = if (totalHeroes == Team.MAX_TOTAL_HEROES) HealthGreen else SageOlive,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
                             )
-                        }
-
-                        IconButton(
-                            onClick = onDismiss,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
-                                tint = WarmCream
-                            )
-                        }
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar",
+                            tint = WarmCream
+                        )
+                    }
+                }
 
-                    // Team Name input field
-                    OutlinedTextField(
-                        value = teamName,
-                        onValueChange = onNameChange,
-                        placeholder = { Text("Nombre del equipo", color = SageOlive, fontSize = 12.sp) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(
-                            color = WarmCream,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        singleLine = true,
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = AntiqueBronze,
-                            unfocusedBorderColor = SageOlive,
-                            focusedContainerColor = DarkPineGreen,
-                            unfocusedContainerColor = DarkPineGreen
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Team Name input field
+                OutlinedTextField(
+                    value = teamName,
+                    onValueChange = onNameChange,
+                    placeholder = { Text("Nombre del equipo", color = SageOlive, fontSize = 12.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = WarmCream,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    singleLine = true,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AntiqueBronze,
+                        unfocusedBorderColor = SageOlive,
+                        focusedContainerColor = DarkPineGreen,
+                        unfocusedContainerColor = DarkPineGreen
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Scrollable 3-section roster: Guerreros (max 4), Místicos (max 3), Magos (max 2)
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Section 1: Guerreros (Max 4)
+                    item {
+                        TeamRoleSection(
+                            title = "Guerreros (${guerreros.size}/${Team.MAX_GUERREROS})",
+                            subtitle = "Vanguardia defensiva · Máx ${Team.MAX_GUERREROS}",
+                            role = HeroRole.GUERRERO,
+                            heroes = guerreros,
+                            maxCount = Team.MAX_GUERREROS,
+                            isTeamFull = isTeamFull,
+                            onAdd = { onOpenHeroPicker(HeroRole.GUERRERO, "guerreros", guerreros.size) },
+                            onEditSlot = { idx -> onOpenHeroPicker(HeroRole.GUERRERO, "guerreros", idx) },
+                            onRemove = { idx -> onRemoveHero("guerreros", idx) }
+                        )
+                    }
+
+                    // Section 2: Místicos (Max 3)
+                    item {
+                        TeamRoleSection(
+                            title = "Místicos (${misticos.size}/${Team.MAX_MISTICOS})",
+                            subtitle = "Línea media de soporte/daño · Máx ${Team.MAX_MISTICOS}",
+                            role = HeroRole.MISTICO,
+                            heroes = misticos,
+                            maxCount = Team.MAX_MISTICOS,
+                            isTeamFull = isTeamFull,
+                            onAdd = { onOpenHeroPicker(HeroRole.MISTICO, "misticos", misticos.size) },
+                            onEditSlot = { idx -> onOpenHeroPicker(HeroRole.MISTICO, "misticos", idx) },
+                            onRemove = { idx -> onRemoveHero("misticos", idx) }
+                        )
+                    }
+
+                    // Section 3: Magos (Max 2)
+                    item {
+                        TeamRoleSection(
+                            title = "Magos (${magos.size}/${Team.MAX_MAGOS})",
+                            subtitle = "Retaguardia de curación y ráfaga · Máx ${Team.MAX_MAGOS}",
+                            role = HeroRole.MAGO,
+                            heroes = magos,
+                            maxCount = Team.MAX_MAGOS,
+                            isTeamFull = isTeamFull,
+                            onAdd = { onOpenHeroPicker(HeroRole.MAGO, "magos", magos.size) },
+                            onEditSlot = { idx -> onOpenHeroPicker(HeroRole.MAGO, "magos", idx) },
+                            onRemove = { idx -> onRemoveHero("magos", idx) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Bottom CTA: Guardar button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (totalHeroes == 0) "Agrega al menos 1 personaje" else if (totalHeroes > Team.MAX_TOTAL_HEROES) "Excede el máximo de 6" else "Composición válida ($totalHeroes/6)",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = if (isValid) SageOlive else HealthRed,
+                            fontSize = 11.sp
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Scrollable 3-section roster: Guerreros (max 4), Místicos (max 3), Magos (max 2)
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Section 1: Guerreros (Max 4)
-                        item {
-                            TeamRoleSection(
-                                title = "Guerreros (${guerreros.size}/${Team.MAX_GUERREROS})",
-                                subtitle = "Vanguardia defensiva · Máx ${Team.MAX_GUERREROS}",
-                                role = HeroRole.GUERRERO,
-                                heroes = guerreros,
-                                maxCount = Team.MAX_GUERREROS,
-                                isTeamFull = isTeamFull,
-                                onAdd = { onOpenHeroPicker(HeroRole.GUERRERO, "guerreros", guerreros.size) },
-                                onEditSlot = { idx -> onOpenHeroPicker(HeroRole.GUERRERO, "guerreros", idx) },
-                                onRemove = { idx -> onRemoveHero("guerreros", idx) }
-                            )
-                        }
-
-                        // Section 2: Místicos (Max 3)
-                        item {
-                            TeamRoleSection(
-                                title = "Místicos (${misticos.size}/${Team.MAX_MISTICOS})",
-                                subtitle = "Línea media de soporte/daño · Máx ${Team.MAX_MISTICOS}",
-                                role = HeroRole.MISTICO,
-                                heroes = misticos,
-                                maxCount = Team.MAX_MISTICOS,
-                                isTeamFull = isTeamFull,
-                                onAdd = { onOpenHeroPicker(HeroRole.MISTICO, "misticos", misticos.size) },
-                                onEditSlot = { idx -> onOpenHeroPicker(HeroRole.MISTICO, "misticos", idx) },
-                                onRemove = { idx -> onRemoveHero("misticos", idx) }
-                            )
-                        }
-
-                        // Section 3: Magos (Max 2)
-                        item {
-                            TeamRoleSection(
-                                title = "Magos (${magos.size}/${Team.MAX_MAGOS})",
-                                subtitle = "Retaguardia de curación y ráfaga · Máx ${Team.MAX_MAGOS}",
-                                role = HeroRole.MAGO,
-                                heroes = magos,
-                                maxCount = Team.MAX_MAGOS,
-                                isTeamFull = isTeamFull,
-                                onAdd = { onOpenHeroPicker(HeroRole.MAGO, "magos", magos.size) },
-                                onEditSlot = { idx -> onOpenHeroPicker(HeroRole.MAGO, "magos", idx) },
-                                onRemove = { idx -> onRemoveHero("magos", idx) }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Bottom CTA: Guardar button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (totalHeroes == 0) "Agrega al menos 1 personaje" else if (totalHeroes > Team.MAX_TOTAL_HEROES) "Excede el máximo de 6" else "Composición válida ($totalHeroes/6)",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = if (isValid) SageOlive else HealthRed,
-                                fontSize = 11.sp
-                            )
-                        )
-
-                        MedievalButton(
-                            text = "Guardar",
-                            onClick = onSave,
-                            enabled = isValid,
-                            modifier = Modifier.height(42.dp)
-                        )
-                    }
+                    MedievalButton(
+                        text = "Guardar",
+                        onClick = onSave,
+                        enabled = isValid,
+                        modifier = Modifier.height(42.dp)
+                    )
                 }
             }
         }

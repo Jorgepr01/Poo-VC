@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Tactical RPG"
+rootProject.name = "TOW"
 
 include(":app")
