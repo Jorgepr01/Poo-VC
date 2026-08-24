@@ -1,12 +1,12 @@
-# GitHub Linguist configuration to focus repository language statistics on Core Java Engine
+# GitHub Linguist overrides: Prioritize Core Java Engine in repository language statistics
 
-# Exclude Gradle Kotlin DSL configuration scripts from language statistics
+# Exclude Gradle Kotlin DSL configuration scripts
 *.kts linguist-detectable=false
-*.gradle.kts linguist-detectable=false
+*.kts linguist-vendored=true
+*.kts linguist-generated=true
 
-# Exclude Jetpack Compose UI presentation layer from language statistics
-app/src/main/java/com/example/ui/** linguist-detectable=false
-app/src/main/java/com/example/ui/** linguist-vendored
+# Exclude all Kotlin presentation and wrapper files so GitHub highlights the Java core engine
+*.kt linguist-detectable=false
+*.kt linguist-vendored=true
+*.kt linguist-generated=true
 
-# Exclude screenshot tests
-app/src/test/**/GreetingScreenshotTest.kt linguist-detectable=false
