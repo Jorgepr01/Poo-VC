@@ -16,49 +16,61 @@ public final class HeroCatalog {
         warriors.add(new Hero(
                 "g_paladin",
                 "Lord Valerius",
+                "El Bastión Inquebrantable",
+                "«Mi escudo es la muralla donde el caos se estrella.»",
                 HeroRole.GUERRERO,
                 480,
                 110,
                 85,
-                "Paladín acorazado con escudo pesado de la Orden del Roble.",
+                "Paladín acorazado con escudo pesado de la Orden del Roble Real.",
                 "Muro Inquebrantable",
-                "Mitiga daño y protege la vanguardia con armadura pesada.",
+                "Mitiga daño y blinda la vanguardia con armadura consagrada.",
+                "Ideal para absorber castigo en vanguardia gracias a su altísima defensa de 85 y protección frontal activa a sus aliados.",
                 "🛡️"
         ));
         warriors.add(new Hero(
                 "g_barbarian",
                 "Brutus el Feroz",
+                "Furia de las Cumbres del Norte",
+                "«¡La piedad no forja imperios, la fuerza sí!»",
                 HeroRole.GUERRERO,
                 520,
                 135,
                 65,
-                "Bárbaro de las montañas del norte con gran hacha de guerra.",
+                "Bárbaro colosal forjado en el hielo con una demoledora hacha doble.",
                 "Golpe Hendiente",
-                "Impactos devastadores que desgarran armaduras enemigas.",
+                "Impactos feroces que desgarran armaduras y quiebran formaciones.",
+                "Excelente para jugadores agresivos: tiene la mayor cantidad de vida (520 HP) y alto daño físico (135 ATK) para presionar de inmediato.",
                 "🪓"
         ));
         warriors.add(new Hero(
                 "g_knight",
                 "Sir Galahad",
+                "Hoja del Juramento Solar",
+                "«Por el honor de la corona, cada golpe encuentra su destino.»",
                 HeroRole.GUERRERO,
                 460,
                 120,
                 80,
-                "Caballero consagrado veloz y letal con espada larga.",
+                "Caballero consagrado veloz y equilibrado, maestro de la espada bastarda.",
                 "Estocada Sagrada",
-                "Cortes de precisión con alta probabilidad de golpe crítico.",
+                "Cortes milimétricos de precisión con alta probabilidad crítica.",
+                "El guerrero más equilibrado: sólida defensa (80 DEF) con versatilidad para responder en cualquier etapa del combate.",
                 "⚔️"
         ));
         warriors.add(new Hero(
                 "g_guardian",
                 "Darius Hojaferro",
+                "Veterano de Mil Asedios",
+                "«He roto mil líneas enemigas; esta será solo una más.»",
                 HeroRole.GUERRERO,
                 500,
                 125,
                 75,
-                "Veterano mercenario curtido en incontables asedios.",
+                "Veterano mercenario con lanza larga capaz de doblegar escuadrones.",
                 "Rompefilas",
                 "Carga con lanza capaz de desestabilizar posiciones defensivas.",
+                "El mejor rompe-tanques: 500 HP y lanza pesada diseñada para castigar a los oponentes con alta armadura.",
                 "🗡️"
         ));
         GUERREROS = Collections.unmodifiableList(warriors);
@@ -67,61 +79,76 @@ public final class HeroCatalog {
         mystics.add(new Hero(
                 "m_solar",
                 "Elysia Tejevelos",
+                "Suma Sacerdotisa Solar",
+                "«La luz del alba desvanece las defensas de la sombra.»",
                 HeroRole.MISTICO,
                 360,
                 130,
                 45,
-                "Sacerdotisa solar que debilita la voluntad y defensas del rival.",
+                "Sacerdotisa mística que manipula los rayos solares para debilitar rivales.",
                 "Juicio Solar",
-                "Ataque de luz concentrada que reduce la defensa enemiga (-35% DEF).",
+                "Haz de luz concentrada que reduce severamente la defensa enemiga (-35% DEF).",
+                "La elección perfecta para debilitar muros defensivos enemigos y preparar el terreno para los remates de tus atacantes.",
                 "☀️"
         ));
         mystics.add(new Hero(
                 "m_shadow",
                 "Malakor el Sombrío",
+                "Nigromante del Abismo",
+                "«Vuestra fuerza me pertenece... gota a gota.»",
                 HeroRole.MISTICO,
                 380,
                 140,
                 40,
-                "Brujo del abismo experto en maldiciones y drenaje de fuerza.",
+                "Brujo del abismo experto en maldiciones oscuras y drenaje de vigor.",
                 "Maldición Umbría",
                 "Entropía oscura que desgasta y aminora el ataque y defensa rival.",
+                "El mejor místico ofensivo con 140 ATK, ideal para neutralizar a la principal amenaza enemiga mermando sus estadísticas.",
                 "🌑"
         ));
         mystics.add(new Hero(
                 "m_bard",
                 "Lyra Cantoarcano",
+                "Voz de los Ecos Perdidos",
+                "«Una sola nota justa puede cambiar el compás de una guerra.»",
                 HeroRole.MISTICO,
                 350,
                 135,
                 50,
-                "Barda oracular que manipula los flujos de energía táctica.",
+                "Barda oracular con arpa rúnica que altera el destino y el flujo del combate.",
                 "Réquiem Arcano",
-                "Onda sónica que confunde y distorsiona el poder rival.",
+                "Onda sónica armónica que distorsiona las tácticas del adversario.",
+                "Mayor resistencia en línea media (50 DEF) combinada con gran control de batalla para desgastar al rival sostenidamente.",
                 "🔮"
         ));
         mystics.add(new Hero(
                 "m_druid",
                 "Kaelen Susurro Verde",
+                "Guardián del Bosque Primigenio",
+                "«La naturaleza no juzga; simplemente reclama lo que es suyo.»",
                 HeroRole.MISTICO,
                 370,
                 128,
                 48,
-                "Druida que invoca espíritus ancestrales y raíces espinosas.",
+                "Druida que convoca la furia de las raíces y la fuerza de la tierra ancestral.",
                 "Zarza Ancestral",
                 "Espinas místicas que desgastan el ataque del oponente (-30% ATK).",
+                "Vital contra equipos con bárbaros o magos explosivos: neutraliza la potencia del mayor atacante enemigo.",
                 "🌿"
         ));
         mystics.add(new Hero(
                 "m_cleric",
                 "Hermana Serena",
+                "Mano de la Gracia Celestial",
+                "«Donde hay fe y unión, la victoria es ineludible.»",
                 HeroRole.MISTICO,
                 375,
                 122,
                 52,
-                "Clériga de la luz que bendice a sus aliados.",
+                "Clériga devota que potencia la moral y fortaleza de sus camaradas.",
                 "Bendición Heroica",
                 "Otorga +25% de ataque y defensa a todos los aliados vivos.",
+                "La mejor opción de soporte global: potencia simultáneamente la resistencia y letalidad de toda tu escuadra.",
                 "✨"
         ));
         MISTICOS = Collections.unmodifiableList(mystics);
@@ -130,49 +157,61 @@ public final class HeroCatalog {
         mages.add(new Hero(
                 "w_pyro",
                 "Archimago Ignis",
+                "Señor de la Llama Eterna",
+                "«Todo arderá bajo el crisol del fuego primordial.»",
                 HeroRole.MAGO,
                 320,
                 175,
                 35,
-                "Maestro de las llamas eternas con inmenso poder destructivo.",
+                "Maestro del fuego primordial con devastación explosiva y cauterización regenerativa.",
                 "Maelstrom Ígneo",
-                "Lanza bolas de fuego demoledoras y olas restauradoras.",
+                "Lanza tormentas incandescentes o canaliza calor restaurador.",
+                "Mago demoledor híbrido: inflige 175 ATK en área o salva a tu vanguardia con potentes curaciones tácticas.",
                 "🔥"
         ));
         mages.add(new Hero(
                 "w_storm",
                 "Kaelith Tempestad",
+                "Heraldo del Rayo Celestial",
+                "«El trueno no avisa; cae y purifica el campo.»",
                 HeroRole.MAGO,
                 310,
                 185,
                 30,
-                "Invocador de relámpagos y vendavales celestiales.",
+                "Invocador de relámpagos celestes y centellas de alto poder destructivo.",
                 "Tormenta de Rayos",
-                "Golpea a múltiples objetivos con descargas de alto voltaje.",
+                "Golpea a múltiples objetivos con descargas eléctricas de choque.",
+                "El máximo portador de daño del torneo con 185 ATK. Ideal para acabar con formaciones enemigas en pocos turnos.",
                 "⚡"
         ));
         mages.add(new Hero(
                 "w_frost",
                 "Morrigan Escarcha",
+                "Dama de los Glaciares Eternos",
+                "«El frío preserva a los míos y congela las esperanzas rivales.»",
                 HeroRole.MAGO,
                 330,
                 165,
                 40,
-                "Hechicera glacial que congela y canaliza ventiscas curativas.",
+                "Hechicera glacial que canaliza vientos árticos y sellos de escarcha defensiva.",
                 "Ventisca Glacial",
-                "Vientos gélidos y regeneración pura de escarcha.",
+                "Vientos polares dañinos y regeneración profunda de frío puro.",
+                "La maga más resistente (330 HP / 40 DEF) y con la curación más consistente para partidas largas de desgaste.",
                 "❄️"
         ));
         mages.add(new Hero(
                 "w_astral",
                 "Zephyr del Vacío",
+                "Canalizador de Estrellas Caídas",
+                "«En el tejido del cosmos, vuestra derrota ya está escrita.»",
                 HeroRole.MAGO,
                 315,
                 180,
                 32,
-                "Canalizador de anomalías astrales y magia primordial cósmica.",
+                "Astrólogo arcano que invoca la gravedad cósmica y supernovas arcanas.",
                 "Cataclismo Astral",
-                "Explosión cósmica que altera el destino del combate.",
+                "Explosión cósmica que fractura el destino del combate.",
+                "Inmenso poder de ráfaga (180 ATK) y versatilidad mística para definir los momentos más críticos del duelo.",
                 "🌌"
         ));
         MAGOS = Collections.unmodifiableList(mages);

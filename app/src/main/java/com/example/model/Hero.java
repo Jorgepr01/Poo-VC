@@ -5,6 +5,8 @@ import java.util.Objects;
 public class Hero {
     private final String id;
     private final String name;
+    private final String title;
+    private final String motto;
     private final HeroRole role;
     private final int hp;
     private final int attack;
@@ -12,12 +14,15 @@ public class Hero {
     private final String description;
     private final String abilityName;
     private final String abilityDescription;
+    private final String tacticalReason;
     private final String avatarEmoji;
     private final long colorAccentHex;
 
     public Hero(
             String id,
             String name,
+            String title,
+            String motto,
             HeroRole role,
             int hp,
             int attack,
@@ -25,11 +30,14 @@ public class Hero {
             String description,
             String abilityName,
             String abilityDescription,
+            String tacticalReason,
             String avatarEmoji,
             long colorAccentHex
     ) {
         this.id = id;
         this.name = name;
+        this.title = title != null ? title : "";
+        this.motto = motto != null ? motto : "";
         this.role = role;
         this.hp = hp;
         this.attack = attack;
@@ -37,8 +45,27 @@ public class Hero {
         this.description = description;
         this.abilityName = abilityName;
         this.abilityDescription = abilityDescription;
+        this.tacticalReason = tacticalReason != null ? tacticalReason : "";
         this.avatarEmoji = avatarEmoji;
         this.colorAccentHex = colorAccentHex;
+    }
+
+    public Hero(
+            String id,
+            String name,
+            String title,
+            String motto,
+            HeroRole role,
+            int hp,
+            int attack,
+            int defense,
+            String description,
+            String abilityName,
+            String abilityDescription,
+            String tacticalReason,
+            String avatarEmoji
+    ) {
+        this(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, role.getColorHex());
     }
 
     public Hero(
@@ -53,7 +80,7 @@ public class Hero {
             String abilityDescription,
             String avatarEmoji
     ) {
-        this(id, name, role, hp, attack, defense, description, abilityName, abilityDescription, avatarEmoji, role.getColorHex());
+        this(id, name, "", "", role, hp, attack, defense, description, abilityName, abilityDescription, abilityDescription, avatarEmoji, role.getColorHex());
     }
 
     public String getId() {
@@ -62,6 +89,14 @@ public class Hero {
 
     public String getName() {
         return name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getMotto() {
+        return motto;
     }
 
     public HeroRole getRole() {
@@ -94,6 +129,10 @@ public class Hero {
 
     public String getAbilityDescription() {
         return abilityDescription;
+    }
+
+    public String getTacticalReason() {
+        return tacticalReason.isEmpty() ? abilityDescription : tacticalReason;
     }
 
     public String getUltimateDesc() {
@@ -135,16 +174,19 @@ public class Hero {
                 colorAccentHex == hero.colorAccentHex &&
                 Objects.equals(id, hero.id) &&
                 Objects.equals(name, hero.name) &&
+                Objects.equals(title, hero.title) &&
+                Objects.equals(motto, hero.motto) &&
                 role == hero.role &&
                 Objects.equals(description, hero.description) &&
                 Objects.equals(abilityName, hero.abilityName) &&
                 Objects.equals(abilityDescription, hero.abilityDescription) &&
+                Objects.equals(tacticalReason, hero.tacticalReason) &&
                 Objects.equals(avatarEmoji, hero.avatarEmoji);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, role, hp, attack, defense, description, abilityName, abilityDescription, avatarEmoji, colorAccentHex);
+        return Objects.hash(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, colorAccentHex);
     }
 
     @Override

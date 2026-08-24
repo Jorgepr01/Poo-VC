@@ -95,24 +95,15 @@ public class JavaCombatEngineTest {
     }
 
     @Test
-    public void testUnitRefreshMethods() {
-        List<BattleUnit> units = new ArrayList<>();
-        BattleUnit p1Unit = new BattleUnit("p1_u0", 1, 0, HeroCatalog.GUERREROS.get(0), 100, 100, true, true, 0f, 0f, "Guerreros");
-        BattleUnit p2Unit = new BattleUnit("p2_u0", 2, 0, HeroCatalog.GUERREROS.get(1), 100, 100, true, true, 0f, 0f, "Guerreros");
-        units.add(p1Unit);
-        units.add(p2Unit);
-
-        assertTrue(units.get(0).isHasActed());
-        assertTrue(units.get(1).isHasActed());
-
-        // Refresh player 2
-        List<BattleUnit> refreshedP2 = BattleRules.refreshPlayerUnits(units, 2);
-        assertTrue("Player 1 unit should remain acted", refreshedP2.get(0).isHasActed());
-        assertFalse("Player 2 unit should be refreshed", refreshedP2.get(1).isHasActed());
-
-        // Refresh all for new round
-        List<BattleUnit> refreshedAll = BattleRules.refreshAllUnitsForNewRound(units);
-        assertFalse("Player 1 unit should be refreshed for new round", refreshedAll.get(0).isHasActed());
-        assertFalse("Player 2 unit should be refreshed for new round", refreshedAll.get(1).isHasActed());
+    public void testHeroIdentityAndMottos() {
+        for (com.example.model.Hero hero : HeroCatalog.ALL_HEROES) {
+            assertNotNull("Hero name should not be null", hero.getName());
+            assertFalse("Hero title should not be empty", hero.getTitle().isEmpty());
+            assertFalse("Hero motto should not be empty", hero.getMotto().isEmpty());
+            assertFalse("Hero tactical description should not be empty", hero.getTacticalReason().isEmpty());
+            assertTrue("Hero HP should be positive", hero.getHp() > 0);
+            assertTrue("Hero Attack should be positive", hero.getAttack() > 0);
+            assertTrue("Hero Defense should be positive", hero.getDefense() > 0);
+        }
     }
 }

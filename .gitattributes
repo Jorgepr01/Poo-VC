@@ -1,0 +1,12 @@
+# GitHub Linguist configuration to focus repository language statistics on Core Java Engine
+
+# Exclude Gradle Kotlin DSL configuration scripts from language statistics
+*.kts linguist-detectable=false
+*.gradle.kts linguist-detectable=false
+
+# Exclude Jetpack Compose UI presentation layer from language statistics
+app/src/main/java/com/example/ui/** linguist-detectable=false
+app/src/main/java/com/example/ui/** linguist-vendored
+
+# Exclude screenshot tests
+app/src/test/**/GreetingScreenshotTest.kt linguist-detectable=false

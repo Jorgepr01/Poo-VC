@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -298,17 +299,48 @@ fun AttackModal(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Hero Role Title (e.g. "Guerrero", "Mago", "Místico")
-                        Text(
-                            text = attacker.hero.role.displayName,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = WarmCreamBright,
-                                fontSize = 15.sp,
-                                fontFamily = FontFamily.Monospace
-                            ),
+                        // Hero Role and Identity Title
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.padding(start = 12.dp)
-                        )
+                        ) {
+                            Text(
+                                text = "${attacker.hero.name} · ${attacker.hero.role.displayName}",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = WarmCreamBright,
+                                    fontSize = 15.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                        }
+
+                        if (attacker.hero.title.isNotEmpty()) {
+                            Text(
+                                text = attacker.hero.title,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = AntiqueBronzeBright,
+                                    fontSize = 11.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        }
+
+                        if (attacker.hero.motto.isNotEmpty()) {
+                            Text(
+                                text = attacker.hero.motto,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = WarmCreamMuted,
+                                    fontSize = 10.5.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                modifier = Modifier.padding(start = 12.dp)
+                            )
+                        }
 
                         // Indented stats (ataque & defensa)
                         Column(

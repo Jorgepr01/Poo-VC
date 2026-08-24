@@ -315,16 +315,30 @@ private fun TeamRoleSection(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        HeroAvatarCircle(hero = hero, size = 30.dp)
-                        Text(
-                            text = "${hero.name} - ${hero.role.displayName}",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = WarmCream,
-                                fontSize = 12.sp
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        HeroAvatarCircle(hero = hero, size = 32.dp)
+                        Column {
+                            Text(
+                                text = "${hero.name} · ${hero.role.displayName}",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = WarmCreamBright,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (hero.title.isNotEmpty()) {
+                                Text(
+                                    text = hero.title,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = AntiqueBronzeBright,
+                                        fontSize = 9.5.sp
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
                     }
 
                     OutlinedButton(
