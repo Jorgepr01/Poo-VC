@@ -14,6 +14,74 @@ public class BattleUnit {
     private final float attackBuffPct;
     private final float defenseBuffPct;
     private final String rowLabel;
+    private final int shotsPerformed;
+    private final int guardRoundsRemaining;
+    private final int buffRoundsRemaining;
+
+    public BattleUnit(
+            String id,
+            int playerId,
+            int slotIndex,
+            Hero hero,
+            int currentHp,
+            int maxHp,
+            boolean isAlive,
+            boolean hasActed,
+            float attackBuffPct,
+            float defenseBuffPct,
+            String rowLabel,
+            int shotsPerformed,
+            int guardRoundsRemaining,
+            int buffRoundsRemaining
+    ) {
+        this.id = id;
+        this.playerId = playerId;
+        this.slotIndex = slotIndex;
+        this.hero = hero;
+        this.currentHp = Math.max(0, currentHp);
+        this.maxHp = maxHp;
+        this.isAlive = isAlive && this.currentHp > 0;
+        this.hasActed = hasActed;
+        this.attackBuffPct = attackBuffPct;
+        this.defenseBuffPct = defenseBuffPct;
+        this.rowLabel = rowLabel;
+        this.shotsPerformed = Math.max(0, shotsPerformed);
+        this.guardRoundsRemaining = Math.max(0, guardRoundsRemaining);
+        this.buffRoundsRemaining = Math.max(0, buffRoundsRemaining);
+    }
+
+    public BattleUnit(
+            String id,
+            int playerId,
+            int slotIndex,
+            Hero hero,
+            int currentHp,
+            int maxHp,
+            boolean isAlive,
+            boolean hasActed,
+            float attackBuffPct,
+            float defenseBuffPct,
+            String rowLabel,
+            int shotsPerformed,
+            int guardRoundsRemaining
+    ) {
+        this(
+                id,
+                playerId,
+                slotIndex,
+                hero,
+                currentHp,
+                maxHp,
+                isAlive,
+                hasActed,
+                attackBuffPct,
+                defenseBuffPct,
+                rowLabel,
+                shotsPerformed,
+                guardRoundsRemaining,
+                (attackBuffPct != 0f || defenseBuffPct != 0f) ? 1 : 0
+        );
+    }
 
     public BattleUnit(
             String id,
@@ -28,17 +96,21 @@ public class BattleUnit {
             float defenseBuffPct,
             String rowLabel
     ) {
-        this.id = id;
-        this.playerId = playerId;
-        this.slotIndex = slotIndex;
-        this.hero = hero;
-        this.currentHp = Math.max(0, currentHp);
-        this.maxHp = maxHp;
-        this.isAlive = isAlive && this.currentHp > 0;
-        this.hasActed = hasActed;
-        this.attackBuffPct = attackBuffPct;
-        this.defenseBuffPct = defenseBuffPct;
-        this.rowLabel = rowLabel;
+        this(
+                id,
+                playerId,
+                slotIndex,
+                hero,
+                currentHp,
+                maxHp,
+                isAlive,
+                hasActed,
+                attackBuffPct,
+                defenseBuffPct,
+                rowLabel,
+                0,
+                hero.getRole() == HeroRole.GUERRERO ? 3 : 0
+        );
     }
 
     public BattleUnit(
@@ -59,7 +131,9 @@ public class BattleUnit {
                 false,
                 0f,
                 0f,
-                rowLabel
+                rowLabel,
+                0,
+                hero.getRole() == HeroRole.GUERRERO ? 3 : 0
         );
     }
 
@@ -130,6 +204,97 @@ public class BattleUnit {
         return getHpPercent();
     }
 
+    public int getShotsPerformed() {
+        return shotsPerformed;
+    }
+
+    public boolean canUseUltimate() {
+        return shotsPerformed >= 1;
+    }
+
+    public int getGuardRoundsRemaining() {
+        return guardRoundsRemaining;
+    }
+
+    public boolean isGuardActive() {
+        return guardRoundsRemaining > 0;
+    }
+
+    public int getBuffRoundsRemaining() {
+        return buffRoundsRemaining;
+    }
+
+    public boolean hasActiveBuffsOrDebuffs() {
+        return buffRoundsRemaining > 0 && (attackBuffPct != 0f || defenseBuffPct != 0f);
+    }
+
+    public BattleUnit copy(
+            String id,
+            Integer playerId,
+            Integer slotIndex,
+            Hero hero,
+            Integer currentHp,
+            Integer maxHp,
+            Boolean isAlive,
+            Boolean hasActed,
+            Float attackBuffPct,
+            Float defenseBuffPct,
+            String rowLabel,
+            Integer shotsPerformed,
+            Integer guardRoundsRemaining,
+            Integer buffRoundsRemaining
+    ) {
+        return new BattleUnit(
+                id != null ? id : this.id,
+                playerId != null ? playerId : this.playerId,
+                slotIndex != null ? slotIndex : this.slotIndex,
+                hero != null ? hero : this.hero,
+                currentHp != null ? currentHp : this.currentHp,
+                maxHp != null ? maxHp : this.maxHp,
+                isAlive != null ? isAlive : (currentHp != null ? currentHp > 0 : this.isAlive),
+                hasActed != null ? hasActed : this.hasActed,
+                attackBuffPct != null ? attackBuffPct : this.attackBuffPct,
+                defenseBuffPct != null ? defenseBuffPct : this.defenseBuffPct,
+                rowLabel != null ? rowLabel : this.rowLabel,
+                shotsPerformed != null ? shotsPerformed : this.shotsPerformed,
+                guardRoundsRemaining != null ? guardRoundsRemaining : this.guardRoundsRemaining,
+                buffRoundsRemaining != null ? buffRoundsRemaining : this.buffRoundsRemaining
+        );
+    }
+
+    public BattleUnit copy(
+            String id,
+            Integer playerId,
+            Integer slotIndex,
+            Hero hero,
+            Integer currentHp,
+            Integer maxHp,
+            Boolean isAlive,
+            Boolean hasActed,
+            Float attackBuffPct,
+            Float defenseBuffPct,
+            String rowLabel,
+            Integer shotsPerformed,
+            Integer guardRoundsRemaining
+    ) {
+        return copy(
+                id,
+                playerId,
+                slotIndex,
+                hero,
+                currentHp,
+                maxHp,
+                isAlive,
+                hasActed,
+                attackBuffPct,
+                defenseBuffPct,
+                rowLabel,
+                shotsPerformed,
+                guardRoundsRemaining,
+                this.buffRoundsRemaining
+        );
+    }
+
     public BattleUnit copy(
             String id,
             Integer playerId,
@@ -143,31 +308,50 @@ public class BattleUnit {
             Float defenseBuffPct,
             String rowLabel
     ) {
-        return new BattleUnit(
-                id != null ? id : this.id,
-                playerId != null ? playerId : this.playerId,
-                slotIndex != null ? slotIndex : this.slotIndex,
-                hero != null ? hero : this.hero,
-                currentHp != null ? currentHp : this.currentHp,
-                maxHp != null ? maxHp : this.maxHp,
-                isAlive != null ? isAlive : (currentHp != null ? currentHp > 0 : this.isAlive),
-                hasActed != null ? hasActed : this.hasActed,
-                attackBuffPct != null ? attackBuffPct : this.attackBuffPct,
-                defenseBuffPct != null ? defenseBuffPct : this.defenseBuffPct,
-                rowLabel != null ? rowLabel : this.rowLabel
+        return copy(
+                id,
+                playerId,
+                slotIndex,
+                hero,
+                currentHp,
+                maxHp,
+                isAlive,
+                hasActed,
+                attackBuffPct,
+                defenseBuffPct,
+                rowLabel,
+                this.shotsPerformed,
+                this.guardRoundsRemaining,
+                this.buffRoundsRemaining
         );
     }
 
     public BattleUnit copyWithHp(int newHp) {
-        return copy(null, null, null, null, newHp, null, newHp > 0, null, null, null, null);
+        return copy(null, null, null, null, newHp, null, newHp > 0, null, null, null, null, null, null, null);
     }
 
     public BattleUnit copyWithActed(boolean acted) {
-        return copy(null, null, null, null, null, null, null, acted, null, null, null);
+        return copy(null, null, null, null, null, null, null, acted, null, null, null, null, null, null);
+    }
+
+    public BattleUnit copyWithBuffs(float atkBuff, float defBuff, int buffRounds) {
+        return copy(null, null, null, null, null, null, null, null, atkBuff, defBuff, null, null, null, buffRounds);
     }
 
     public BattleUnit copyWithBuffs(float atkBuff, float defBuff) {
-        return copy(null, null, null, null, null, null, null, null, atkBuff, defBuff, null);
+        return copyWithBuffs(atkBuff, defBuff, 1);
+    }
+
+    public BattleUnit copyWithShots(int shots) {
+        return copy(null, null, null, null, null, null, null, null, null, null, null, shots, null, null);
+    }
+
+    public BattleUnit copyWithIncrementedShots() {
+        return copy(null, null, null, null, null, null, null, null, null, null, null, this.shotsPerformed + 1, null, null);
+    }
+
+    public BattleUnit copyWithGuardRounds(int guardRounds) {
+        return copy(null, null, null, null, null, null, null, null, null, null, null, null, guardRounds, null);
     }
 
     @Override
@@ -181,6 +365,9 @@ public class BattleUnit {
                 maxHp == that.maxHp &&
                 isAlive == that.isAlive &&
                 hasActed == that.hasActed &&
+                shotsPerformed == that.shotsPerformed &&
+                guardRoundsRemaining == that.guardRoundsRemaining &&
+                buffRoundsRemaining == that.buffRoundsRemaining &&
                 Float.compare(that.attackBuffPct, attackBuffPct) == 0 &&
                 Float.compare(that.defenseBuffPct, defenseBuffPct) == 0 &&
                 Objects.equals(id, that.id) &&
@@ -190,6 +377,6 @@ public class BattleUnit {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, playerId, slotIndex, hero, currentHp, maxHp, isAlive, hasActed, attackBuffPct, defenseBuffPct, rowLabel);
+        return Objects.hash(id, playerId, slotIndex, hero, currentHp, maxHp, isAlive, hasActed, attackBuffPct, defenseBuffPct, rowLabel, shotsPerformed, guardRoundsRemaining, buffRoundsRemaining);
     }
 }

@@ -44,6 +44,9 @@ fun AttackModal(
     isHealMode: Boolean,
     isTargetSelectorOpen: Boolean,
     strategyBonus: StrategyRollResult?,
+    isStrategyUsedThisRound: Boolean = false,
+    isStrategyMinigameAllowed: Boolean = true,
+    playerTeamNames: Map<Int, String> = emptyMap(),
     onAttackTypeChanged: (AttackType) -> Unit,
     onTargetCountLimitChanged: (Int) -> Unit,
     onHealModeChanged: (Boolean) -> Unit,
@@ -199,11 +202,14 @@ fun AttackModal(
                                 )
 
                                 // Ultimate Tab
+                                val isUltimateReady = attacker.canUseUltimate()
                                 Text(
-                                    text = "Ultimate",
+                                    text = if (isUltimateReady) "Ultimate ⚡" else "Ultimate 🔒",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = if (isUltimate) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isUltimate) HealthRed else WarmCreamBright,
+                                        color = if (isUltimate) HealthRed 
+                                                else if (isUltimateReady) AntiqueBronzeBright 
+                                                else WarmCreamMuted.copy(alpha = 0.6f),
                                         fontSize = 14.sp,
                                         fontFamily = FontFamily.Monospace
                                     ),
@@ -395,20 +401,39 @@ fun AttackModal(
                             )
                         )
 
+                        // Ultimate Charge status indicator line
+                        val chargeText = if (attacker.canUseUltimate()) {
+                            "Energía Ultimate: ⚡ LISTA (¡1/1 tiros completados! Puedes desatar tu Ultimate)."
+                        } else {
+                            "Energía Ultimate: 🔒 Cargando (${attacker.shotsPerformed}/1 tiros previos realizados. Requiere al menos 1 tiro previo para desbloquear)."
+                        }
+
+                        Text(
+                            text = chargeText,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = if (attacker.canUseUltimate()) AntiqueBronzeBright else WarmCreamMuted,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (attacker.canUseUltimate()) FontWeight.Bold else FontWeight.Normal,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+
                         // Strategy line matching wireframe format and rules
                         val strategyText = if (isUltimate) {
                             "Estrategia: Deshabilitada para habilidad Ultimate (solo disponible en ataques básicos)."
                         } else if (strategyBonus != null) {
                             "Estrategia activa: ${strategyBonus.message} (${if (strategyBonus.bonusPct >= 0) "+" else ""}${(strategyBonus.bonusPct * 100).toInt()}%)"
+                        } else if (isStrategyUsedThisRound) {
+                            "Estrategia: Ya utilizada por tu equipo en esta ronda (disponible 1 vez por ronda para 1 solo personaje)."
                         } else {
-                            "Estrategia: ${attacker.hero.strategyDesc.ifBlank { "adivina un número aleatorio para aumentar los stats del ataque básico" }}"
+                            "Estrategia: ${attacker.hero.strategyDesc.ifBlank { "adivina un número aleatorio para aumentar los stats del ataque básico (1 uso por equipo por ronda)" }}"
                         }
 
                         Text(
                             text = strategyText,
                             style = MaterialTheme.typography.bodySmall.copy(
-                                color = if (isUltimate) {
-                                    WarmCreamMuted.copy(alpha = 0.6f)
+                                color = if (isUltimate || isStrategyUsedThisRound) {
+                                    WarmCreamMuted.copy(alpha = 0.7f)
                                 } else if (strategyBonus != null) {
                                     if (strategyBonus.isWin) HealthGreen else HealthRed
                                 } else {
@@ -505,8 +530,9 @@ fun AttackModal(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // [ estrategia ] Button (Disabled during Ultimate, enabled on Basic attack)
-                            val isStrategyEnabled = !isUltimate
+                            // [ estrategia ] Button (Disabled during Ultimate, if disabled in settings, or if already used this round by team)
+                            val isStrategyEnabled = isStrategyMinigameAllowed && !isUltimate && !isStrategyUsedThisRound
+                            val isAttackerBroken = attacker.hero.strategyDiceCount == 1
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(10.dp))
@@ -516,7 +542,9 @@ fun AttackModal(
                                         if (!isStrategyEnabled) {
                                             SageOlive.copy(alpha = 0.25f)
                                         } else if (strategyBonus != null) {
-                                            HealthGreen
+                                            if (strategyBonus.isWin) HealthGreen else HealthYellow
+                                        } else if (isAttackerBroken) {
+                                            AntiqueBronzeBright
                                         } else {
                                             WarmCreamBright
                                         },
@@ -528,18 +556,25 @@ fun AttackModal(
                             ) {
                                 Text(
                                     text = when {
-                                        !isStrategyEnabled -> "estrategia (bloqueada)"
-                                        strategyBonus != null -> "estrategia ✓"
-                                        else -> "estrategia"
+                                        !isStrategyMinigameAllowed -> "estrategia (deshabilitada)"
+                                        isUltimate -> "estrategia (bloqueada)"
+                                        isStrategyUsedThisRound -> "estrategia (ya usada)"
+                                        strategyBonus != null && strategyBonus.isWin -> if (isAttackerBroken) "estrategia (+35% ROTA) ✓" else "estrategia (+15%) ✓"
+                                        strategyBonus != null && !strategyBonus.isWin -> "estrategia (-5%) ⚡"
+                                        isAttackerBroken -> "estrategia (1d6 ROTA 🔥)"
+                                        else -> "estrategia (2d6)"
                                     },
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color = when {
                                             !isStrategyEnabled -> WarmCreamMuted.copy(alpha = 0.4f)
-                                            strategyBonus != null -> HealthGreen
+                                            strategyBonus != null && strategyBonus.isWin -> HealthGreen
+                                            strategyBonus != null && !strategyBonus.isWin -> HealthYellow
+                                            isAttackerBroken -> AntiqueBronzeBright
                                             else -> WarmCreamBright
                                         },
                                         fontSize = 12.sp,
-                                        fontFamily = FontFamily.Monospace
+                                        fontFamily = FontFamily.Monospace,
+                                        fontWeight = if (isAttackerBroken) FontWeight.Bold else FontWeight.Normal
                                     )
                                 )
                             }
@@ -577,11 +612,12 @@ fun AttackModal(
             // TARGET SELECTOR POPUP DIALOG (When clicking (+))
             if (isTargetSelectorOpen) {
                 TargetPickerDialog(
-                    title = if (isHealMode) "Elegir Aliados" else "Elegir Objetivos Rivales",
+                    title = if (isHealMode) "Elegir Aliados a Curar" else "Elegir Objetivos Rivales",
                     maxTargets = targetCountLimit,
                     isHealMode = isHealMode,
                     units = if (isHealMode) allAllies else allOpponents,
                     selectedTargetIds = selectedTargetIds,
+                    playerTeamNames = playerTeamNames,
                     onToggleTarget = { onToggleTargetId(it) },
                     onDismiss = { onOpenTargetSelector(false) }
                 )
@@ -596,6 +632,7 @@ private fun TargetPickerDialog(
     isHealMode: Boolean,
     units: List<BattleUnit>,
     selectedTargetIds: List<String>,
+    playerTeamNames: Map<Int, String> = emptyMap(),
     onToggleTarget: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -604,7 +641,7 @@ private fun TargetPickerDialog(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f))
+            .background(Color.Black.copy(alpha = 0.78f))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -613,140 +650,363 @@ private fun TargetPickerDialog(
     ) {
         Box(
             modifier = Modifier
-                .widthIn(max = 580.dp)
-                .fillMaxWidth(0.90f)
-                .fillMaxHeight(0.85f)
+                .widthIn(max = 760.dp)
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.88f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) { /* Consume click inside */ }
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .background(PineGreen)
-                .border(1.5.dp, AntiqueBronzeBright, RoundedCornerShape(16.dp))
+                .border(2.dp, AntiqueBronzeBright, RoundedCornerShape(18.dp))
                 .padding(14.dp)
         ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = AntiqueBronzeBright,
-                                    fontSize = 15.sp,
-                                    fontFamily = FontFamily.Monospace
-                                )
+                    Column {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = AntiqueBronzeBright,
+                                fontSize = 16.sp,
+                                fontFamily = FontFamily.Monospace
                             )
-                            Text(
-                                text = "Selecciona objetivos (${selectedTargetIds.size}/$maxTargets)",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    color = SageOlive,
-                                    fontSize = 10.sp,
-                                    fontFamily = FontFamily.Monospace
-                                )
+                        )
+                        Text(
+                            text = "Selecciona objetivos (${selectedTargetIds.size}/$maxTargets permitidos)",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = WarmCreamBright.copy(alpha = 0.85f),
+                                fontSize = 11.sp,
+                                fontFamily = FontFamily.Monospace
                             )
-                        }
-
-                        IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = WarmCream)
-                        }
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    IconButton(
+                        onClick = onDismiss, 
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(DeepSlateDark)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = WarmCreamBright, modifier = Modifier.size(18.dp))
+                    }
+                }
 
-                    Column(
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Group units by player
+                val playerGroups = units.groupBy { it.playerId }.toList().sortedBy { it.first }
+
+                if (playerGroups.isEmpty()) {
+                    Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        units.forEach { unit ->
-                            val isSelected = selectedTargetIds.contains(unit.id)
-                            Row(
+                        Text(
+                            text = "No hay objetivos disponibles para seleccionar",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = WarmCreamMuted,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+                    }
+                } else if (playerGroups.size == 2) {
+                    // --- 3 PLAYERS MATCH: 2 RIVAL TEAMS WITH A CENTER DIVIDING LINE ---
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // LEFT RIVAL TEAM COLUMN
+                        val (pId1, units1) = playerGroups[0]
+                        val teamName1 = playerTeamNames[pId1] ?: "Equipo Rival $pId1"
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        ) {
+                            TeamHeaderBadge(
+                                playerId = pId1,
+                                teamName = teamName1,
+                                headerLabel = "RIVAL IZQUIERDA",
+                                badgeColor = AntiqueBronzeBright
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Column(
                                 modifier = Modifier
+                                    .weight(1f)
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) DarkPineGreen else DeepSlateDark)
-                                    .border(
-                                        1.dp,
-                                        if (isSelected) AntiqueBronzeBright else SageOlive.copy(alpha = 0.4f),
-                                        RoundedCornerShape(8.dp)
-                                    )
-                                    .clickable { onToggleTarget(unit.id) }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    HeroAvatarCircle(
-                                        hero = unit.hero,
-                                        size = 32.dp,
-                                        isSelected = isSelected,
-                                        onClick = { onToggleTarget(unit.id) }
+                                units1.forEach { unit ->
+                                    TargetUnitCard(
+                                        unit = unit,
+                                        isSelected = selectedTargetIds.contains(unit.id),
+                                        onToggle = { onToggleTarget(unit.id) }
                                     )
-
-                                    Column {
-                                        Text(
-                                            text = "${unit.hero.name} (P${unit.playerId})",
-                                            style = MaterialTheme.typography.bodySmall.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                color = WarmCream,
-                                                fontSize = 11.5.sp,
-                                                fontFamily = FontFamily.Monospace
-                                            )
-                                        )
-                                        Text(
-                                            text = "${unit.hero.role.displayName} · HP: ${unit.currentHp}/${unit.maxHp}",
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                color = if (unit.currentHp < unit.maxHp * 0.4f) HealthRed else SageOlive,
-                                                fontSize = 9.5.sp,
-                                                fontFamily = FontFamily.Monospace
-                                            )
-                                        )
-                                    }
                                 }
+                            }
+                        }
 
-                                Button(
-                                    onClick = { onToggleTarget(unit.id) },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isSelected) HealthRed else AntiqueBronze,
-                                        contentColor = if (isSelected) WarmCream else DarkPineGreen
-                                    ),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    modifier = Modifier.height(28.dp)
-                                ) {
-                                    Text(
-                                        text = if (isSelected) "Quitar" else "+ Agregar",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp,
-                                            fontFamily = FontFamily.Monospace
-                                        )
+                        // CENTER DIVIDING LINE
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(2.dp)
+                                .background(AntiqueBronzeBright.copy(alpha = 0.75f))
+                        )
+
+                        // RIGHT RIVAL TEAM COLUMN
+                        val (pId2, units2) = playerGroups[1]
+                        val teamName2 = playerTeamNames[pId2] ?: "Equipo Rival $pId2"
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        ) {
+                            TeamHeaderBadge(
+                                playerId = pId2,
+                                teamName = teamName2,
+                                headerLabel = "RIVAL DERECHA",
+                                badgeColor = HealthRed
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                units2.forEach { unit ->
+                                    TargetUnitCard(
+                                        unit = unit,
+                                        isSelected = selectedTargetIds.contains(unit.id),
+                                        onToggle = { onToggleTarget(unit.id) }
                                     )
                                 }
                             }
                         }
                     }
+                } else {
+                    // --- SINGLE TEAM (2-player match or Healing allies mode) ---
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        playerGroups.forEach { (pId, groupUnits) ->
+                            val teamName = playerTeamNames[pId] ?: if (isHealMode) "Mi Equipo (Jugador $pId)" else "Equipo Rival (Jugador $pId)"
+                            TeamHeaderBadge(
+                                playerId = pId,
+                                teamName = teamName,
+                                headerLabel = if (isHealMode) "ALIADOS" else "RIVAL",
+                                badgeColor = if (isHealMode) HealthGreen else AntiqueBronzeBright
+                            )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                            groupUnits.forEach { unit ->
+                                TargetUnitCard(
+                                    unit = unit,
+                                    isSelected = selectedTargetIds.contains(unit.id),
+                                    onToggle = { onToggleTarget(unit.id) }
+                                )
+                            }
+                        }
+                    }
+                }
 
-                    MedievalButton(
-                        text = "Listo (${selectedTargetIds.size} seleccionados)",
-                        onClick = onDismiss,
-                        modifier = Modifier.fillMaxWidth().height(36.dp)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Bottom confirmation button
+                MedievalButton(
+                    text = if (selectedTargetIds.isEmpty()) "Seleccionar Objetivo" else "Confirmar Selección (${selectedTargetIds.size})",
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TeamHeaderBadge(
+    playerId: Int,
+    teamName: String,
+    headerLabel: String,
+    badgeColor: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(DeepSlateDark)
+            .border(1.dp, badgeColor.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(badgeColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "P$playerId",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = DarkPineGreen,
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            }
+
+            Text(
+                text = teamName,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = WarmCreamBright,
+                    fontSize = 11.5.sp,
+                    fontFamily = FontFamily.Monospace
+                ),
+                maxLines = 1
+            )
+        }
+
+        Text(
+            text = headerLabel,
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = badgeColor,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+            )
+        )
+    }
+}
+
+@Composable
+private fun TargetUnitCard(
+    unit: BattleUnit,
+    isSelected: Boolean,
+    onToggle: () -> Unit
+) {
+    val hpPercent = (unit.currentHp.toFloat() / unit.maxHp.toFloat()).coerceIn(0f, 1f)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) DarkPineGreen else DeepSlateDark)
+            .border(
+                1.5.dp,
+                if (isSelected) AntiqueBronzeBright else SageOlive.copy(alpha = 0.45f),
+                RoundedCornerShape(8.dp)
+            )
+            .clickable { onToggle() }
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
+            HeroAvatarCircle(
+                hero = unit.hero,
+                size = 32.dp,
+                isSelected = isSelected,
+                onClick = onToggle
+            )
+
+            Column {
+                Text(
+                    text = unit.hero.name,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = if (isSelected) WarmCreamBright else WarmCream,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    maxLines = 1
+                )
+
+                Text(
+                    text = "${unit.hero.role.displayName} · HP: ${unit.currentHp}/${unit.maxHp}",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = if (hpPercent < 0.35f) HealthRed else SageOlive,
+                        fontSize = 9.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+
+                // HP mini progress bar
+                Box(
+                    modifier = Modifier
+                        .width(64.dp)
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(1.5.dp))
+                        .background(DeepSlate)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(hpPercent)
+                            .background(if (hpPercent > 0.35f) HealthGreen else HealthRed)
                     )
                 }
             }
         }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Button(
+            onClick = onToggle,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) HealthRed else AntiqueBronze,
+                contentColor = if (isSelected) WarmCreamBright else DarkPineGreen
+            ),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+            shape = RoundedCornerShape(6.dp),
+            modifier = Modifier.height(26.dp)
+        ) {
+            Text(
+                text = if (isSelected) "✓ Elegido" else "+ Atacar",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 9.5.sp,
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+        }
     }
+}
