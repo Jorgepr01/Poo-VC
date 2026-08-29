@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,32 +37,34 @@ fun SettingsModal(
 
     var settings by remember { mutableStateOf(currentSettings) }
 
+    // Outer scrim styled to match DeepSlate theme instead of pitch black
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DeepSlateScrim)
+            .background(DeepSlate.copy(alpha = 0.82f))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onDismiss() },
         contentAlignment = Alignment.Center
     ) {
+        // Modal Container matching Main Menu (TitleScreen / Lobby) Neo-Medieval aesthetic
         Box(
             modifier = Modifier
-                .widthIn(max = 720.dp)
+                .widthIn(max = 680.dp)
                 .fillMaxWidth(0.92f)
                 .fillMaxHeight(0.92f)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) { /* Consume click inside */ }
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(PineGreen)
-                .border(2.dp, AntiqueBronzeBright, RoundedCornerShape(20.dp))
-                .padding(horizontal = 20.dp, vertical = 14.dp)
+                .border(1.5.dp, AntiqueBronze, RoundedCornerShape(16.dp))
+                .padding(horizontal = 18.dp, vertical = 12.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Header
+                // Header (Neo-Medieval Title Style)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -71,40 +72,39 @@ fun SettingsModal(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(30.dp)
                                 .clip(CircleShape)
                                 .background(DarkPineGreen)
-                                .border(1.dp, AntiqueBronzeBright, CircleShape),
+                                .border(1.dp, AntiqueBronze, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = "Configuración",
                                 tint = AntiqueBronzeBright,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         }
 
                         Column {
                             Text(
                                 text = "Configuración de Partida",
-                                style = MaterialTheme.typography.displaySmall.copy(
+                                style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = WarmCreamBright,
-                                    fontSize = 19.sp,
-                                    fontFamily = FontFamily.Monospace
+                                    color = WarmCream,
+                                    fontSize = 15.sp,
+                                    letterSpacing = 1.sp
                                 )
                             )
                             Text(
-                                text = "Personaliza las reglas y parámetros de combate",
+                                text = "Ajusta las reglas y parámetros de combate para tu partida",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = SageOlive,
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily.Monospace
+                                    fontSize = 10.sp
                                 )
                             )
                         }
@@ -113,36 +113,37 @@ fun SettingsModal(
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(32.dp)
                             .clip(CircleShape)
-                            .background(DeepSlateDark)
+                            .background(DarkPineGreen)
+                            .border(1.dp, SageOlive.copy(alpha = 0.5f), CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cerrar",
-                            tint = WarmCreamBright,
-                            modifier = Modifier.size(18.dp)
+                            tint = WarmCream,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(6.dp))
+                HorizontalDivider(color = SageOlive.copy(alpha = 0.35f), thickness = 1.dp)
                 Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = SageOlive.copy(alpha = 0.4f), thickness = 1.dp)
-                Spacer(modifier = Modifier.height(10.dp))
 
-                // Scrollable Settings Content
+                // Scrollable Settings Content with smaller, refined fonts and pine card styling
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // 1. NÚMERO TOTAL DE RONDAS
                     item {
                         SettingSectionCard(
                             icon = Icons.Default.Timer,
                             title = "Número de Rondas de la Partida",
-                            description = "Define la duración máxima del combate. Si se agotan las rondas, ganará el equipo con mayor porcentaje de salud total."
+                            description = "Duración máxima del combate. Al agotarse, ganará el equipo con mayor salud restante."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -151,37 +152,29 @@ fun SettingsModal(
                             ) {
                                 Text(
                                     text = "Límite: ${settings.maxRoundsDisplay}",
-                                    style = MaterialTheme.typography.titleMedium.copy(
+                                    style = MaterialTheme.typography.titleSmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = AntiqueBronzeBright,
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily.Monospace
+                                        fontSize = 11.5.sp
                                     )
                                 )
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    NumberStepper(
-                                        value = settings.maxRounds,
-                                        minValue = 3,
-                                        maxValue = 30,
-                                        enabled = !settings.isUnlimitedRounds,
-                                        onValueChange = { settings = settings.copy(maxRounds = it, isUnlimitedRounds = false) }
-                                    )
-                                }
+                                NumberStepper(
+                                    value = settings.maxRounds,
+                                    minValue = 3,
+                                    maxValue = 30,
+                                    enabled = !settings.isUnlimitedRounds,
+                                    onValueChange = { settings = settings.copy(maxRounds = it, isUnlimitedRounds = false) }
+                                )
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
-                            // Quick preset chips
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
-                                val presets = listOf(5, 10, 15, 20)
-                                presets.forEach { count ->
+                                listOf(5, 10, 15, 20).forEach { count ->
                                     val isSelected = !settings.isUnlimitedRounds && settings.maxRounds == count
                                     SettingPresetChip(
                                         label = "$count Rondas${if (count == 10) " (Est.)" else ""}",
@@ -206,7 +199,7 @@ fun SettingsModal(
                         SettingSectionCard(
                             icon = Icons.Default.Shield,
                             title = "Rondas de Protección de Vanguardia",
-                            description = "Número de rondas iniciales en las que los Guerreros vivos colocan un escudo protector a sus Místicos y Magos."
+                            description = "Rondas iniciales donde los Guerreros vivos otorgan escudo protector a Místicos y Magos."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -215,11 +208,10 @@ fun SettingsModal(
                             ) {
                                 Text(
                                     text = if (settings.guardRounds == 0) "Sin Protección (0 rondas)" else "${settings.guardRounds} Rondas de Escudo",
-                                    style = MaterialTheme.typography.titleMedium.copy(
+                                    style = MaterialTheme.typography.titleSmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = AntiqueBronzeBright,
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily.Monospace
+                                        fontSize = 11.5.sp
                                     )
                                 )
 
@@ -231,17 +223,17 @@ fun SettingsModal(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 listOf(
-                                    0 to "0 (Sin Escudo)",
+                                    0 to "0 (Sin)",
                                     1 to "1 Ronda",
                                     2 to "2 Rondas",
-                                    3 to "3 Rondas (Est.)",
+                                    3 to "3 R (Est.)",
                                     4 to "4 Rondas",
                                     5 to "5 Rondas"
                                 ).forEach { (rounds, label) ->
@@ -262,7 +254,7 @@ fun SettingsModal(
                         SettingSectionCard(
                             icon = Icons.Default.FlashOn,
                             title = "Cantidad de Ataques por Turno",
-                            description = "Acciones máximas que cada jugador/equipo puede realizar durante su turno antes de ceder el paso."
+                            description = "Acciones máximas que cada equipo puede realizar por turno antes de ceder el paso."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -271,11 +263,10 @@ fun SettingsModal(
                             ) {
                                 Text(
                                     text = "${settings.maxAttacksPerTurn} Ataques por Turno",
-                                    style = MaterialTheme.typography.titleMedium.copy(
+                                    style = MaterialTheme.typography.titleSmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = AntiqueBronzeBright,
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily.Monospace
+                                        fontSize = 11.5.sp
                                     )
                                 )
 
@@ -287,11 +278,11 @@ fun SettingsModal(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 (1..5).forEach { atk ->
                                     val isSelected = settings.maxAttacksPerTurn == atk
@@ -310,16 +301,16 @@ fun SettingsModal(
                     item {
                         SettingSectionCard(
                             icon = Icons.Default.Favorite,
-                            title = "Puntos de Vida Iniciales (HP Multiplier)",
-                            description = "Ajusta la vitalidad de todos los héroes para partidas más rápidas o más tácticas y duraderas."
+                            title = "Puntos de Vida Iniciales (Multiplicador)",
+                            description = "Ajusta la vitalidad de todos los héroes para partidas rápidas o más duraderas."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 listOf(
                                     0.75f to "75% (Rápida)",
-                                    1.0f to "100% (Estándar)",
+                                    1.0f to "100% (Est.)",
                                     1.25f to "125% (Épica)",
                                     1.50f to "150% (Tanques)"
                                 ).forEach { (mult, label) ->
@@ -340,16 +331,16 @@ fun SettingsModal(
                         SettingSectionCard(
                             icon = Icons.Default.AutoAwesome,
                             title = "Carga Requerida para Ultimate",
-                            description = "Número de tiros o acciones previas necesarias para desbloquear y disparar la habilidad definitiva."
+                            description = "Número de tiros previos necesarios para desbloquear y disparar la habilidad definitiva."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 listOf(
-                                    0 to "Inmediata (0 Tiros)",
-                                    1 to "1 Tiro Previo (Estándar)",
-                                    2 to "2 Tiros (Carga Pesada)"
+                                    0 to "0 (Inmediata)",
+                                    1 to "1 Tiro (Est.)",
+                                    2 to "2 Tiros (Pesada)"
                                 ).forEach { (shots, label) ->
                                     val isSelected = settings.ultimateRequiredShots == shots
                                     SettingPresetChip(
@@ -368,7 +359,7 @@ fun SettingsModal(
                         SettingSectionCard(
                             icon = Icons.Default.Casino,
                             title = "Minijuego de Estrategia con Dados",
-                            description = "Permite a los jugadores apostar una tirada de dados (1d6 ROTA +35% o 2d6 TÁCTICA +15%) en ataques básicos una vez por ronda."
+                            description = "Permite a los jugadores apostar dados (1d6 ROTA +35% / 2d6 TÁCTICA +15%) en ataques básicos."
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -376,12 +367,11 @@ fun SettingsModal(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (settings.allowStrategyMinigame) "Minijuego Habilitado (1 uso/ronda)" else "Deshabilitado (Ataque directo)",
+                                    text = if (settings.allowStrategyMinigame) "Habilitado (1 uso/ronda)" else "Deshabilitado (Ataque directo)",
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = if (settings.allowStrategyMinigame) HealthGreen else WarmCreamMuted,
-                                        fontFamily = FontFamily.Monospace,
-                                        fontSize = 12.sp
+                                        fontSize = 11.sp
                                     )
                                 )
 
@@ -392,7 +382,7 @@ fun SettingsModal(
                                         checkedThumbColor = AntiqueBronzeBright,
                                         checkedTrackColor = DarkPineGreen,
                                         uncheckedThumbColor = SageOlive,
-                                        uncheckedTrackColor = DeepSlateDark
+                                        uncheckedTrackColor = DeepSlate
                                     )
                                 )
                             }
@@ -404,11 +394,11 @@ fun SettingsModal(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(10.dp))
                                 .background(DarkPineGreen)
-                                .border(1.dp, SageOlive, RoundedCornerShape(12.dp))
+                                .border(1.dp, SageOlive.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
                                 .clickable { onViewRules() }
-                                .padding(12.dp)
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -417,13 +407,13 @@ fun SettingsModal(
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.MenuBook,
                                         contentDescription = "Manual de Reglas",
                                         tint = AntiqueBronzeBright,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(20.dp)
                                     )
 
                                     Column {
@@ -431,17 +421,15 @@ fun SettingsModal(
                                             text = "Consultar Manual de Reglas y Tácticas",
                                             style = MaterialTheme.typography.bodyMedium.copy(
                                                 fontWeight = FontWeight.Bold,
-                                                color = WarmCreamBright,
-                                                fontFamily = FontFamily.Monospace,
-                                                fontSize = 13.sp
+                                                color = WarmCream,
+                                                fontSize = 11.5.sp
                                             )
                                         )
                                         Text(
-                                            text = "Ver detalles de roles, tipos de ataque y condiciones de victoria",
+                                            text = "Ver detalles de roles, tipos de ataque y victoria",
                                             style = MaterialTheme.typography.bodySmall.copy(
                                                 color = SageOlive,
-                                                fontFamily = FontFamily.Monospace,
-                                                fontSize = 10.sp
+                                                fontSize = 9.5.sp
                                             )
                                         )
                                     }
@@ -450,24 +438,25 @@ fun SettingsModal(
                                 Icon(
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = "Abrir",
-                                    tint = AntiqueBronzeBright
+                                    tint = AntiqueBronzeBright,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = SageOlive.copy(alpha = 0.4f), thickness = 1.dp)
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(color = SageOlive.copy(alpha = 0.35f), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Action Buttons (Restablecer & Guardar)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MedievalSecondaryButton(
-                        text = "Restablecer por Defecto",
+                        text = "Restablecer",
                         onClick = { settings = MatchSettings.DEFAULT },
                         leadingIcon = Icons.Default.Refresh,
                         modifier = Modifier.weight(1f)
@@ -498,29 +487,28 @@ private fun SettingSectionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(DeepSlateDark)
-            .border(1.dp, SageOlive.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .padding(12.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(DarkPineGreen)
+            .border(1.dp, SageOlive.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+            .padding(10.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = title,
                 tint = AntiqueBronzeBright,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(15.dp)
             )
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium.copy(
+                style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = WarmCreamBright,
-                    fontSize = 13.5.sp,
-                    fontFamily = FontFamily.Monospace
+                    color = WarmCream,
+                    fontSize = 11.5.sp
                 )
             )
         }
@@ -531,12 +519,12 @@ private fun SettingSectionCard(
             text = description,
             style = MaterialTheme.typography.bodySmall.copy(
                 color = WarmCreamMuted,
-                fontSize = 10.5.sp,
-                fontFamily = FontFamily.Monospace
+                fontSize = 9.5.sp,
+                lineHeight = 12.sp
             )
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         content()
     }
@@ -552,14 +540,14 @@ private fun SettingPresetChip(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
-            .background(if (isSelected) AntiqueBronze else DarkPineGreen)
+            .background(if (isSelected) AntiqueBronze else PineGreen)
             .border(
                 1.dp,
                 if (isSelected) AntiqueBronzeBright else SageOlive.copy(alpha = 0.4f),
                 RoundedCornerShape(6.dp)
             )
             .clickable { onClick() }
-            .padding(vertical = 6.dp, horizontal = 4.dp),
+            .padding(vertical = 5.dp, horizontal = 3.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -567,8 +555,7 @@ private fun SettingPresetChip(
             style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 color = if (isSelected) DeepSlate else WarmCream,
-                fontSize = 10.sp,
-                fontFamily = FontFamily.Monospace
+                fontSize = 9.5.sp
             ),
             maxLines = 1
         )
@@ -585,32 +572,30 @@ private fun NumberStepper(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(DarkPineGreen)
-            .border(1.dp, SageOlive, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(6.dp))
+            .background(PineGreen)
+            .border(1.dp, SageOlive.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
             .padding(2.dp)
     ) {
         IconButton(
             onClick = { if (value > minValue) onValueChange(value - 1) },
             enabled = enabled && value > minValue,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(24.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "Disminuir",
-                tint = if (enabled && value > minValue) WarmCreamBright else SageOlive.copy(alpha = 0.4f),
-                modifier = Modifier.size(16.dp)
+                tint = if (enabled && value > minValue) WarmCream else SageOlive.copy(alpha = 0.4f),
+                modifier = Modifier.size(14.dp)
             )
         }
 
         Box(
             modifier = Modifier
-                .width(36.dp)
-                .height(24.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(DeepSlateDark),
+                .width(24.dp)
+                .height(20.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -618,8 +603,7 @@ private fun NumberStepper(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = if (enabled) AntiqueBronzeBright else SageOlive,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 12.5.sp
+                    fontSize = 11.5.sp
                 )
             )
         }
@@ -627,13 +611,13 @@ private fun NumberStepper(
         IconButton(
             onClick = { if (value < maxValue) onValueChange(value + 1) },
             enabled = enabled && value < maxValue,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(24.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Aumentar",
-                tint = if (enabled && value < maxValue) WarmCreamBright else SageOlive.copy(alpha = 0.4f),
-                modifier = Modifier.size(16.dp)
+                tint = if (enabled && value < maxValue) WarmCream else SageOlive.copy(alpha = 0.4f),
+                modifier = Modifier.size(14.dp)
             )
         }
     }
