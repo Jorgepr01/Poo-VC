@@ -125,33 +125,6 @@ fun LobbyScreen(
                         )
                     }
                 }
-
-                // Settings Summary Badge
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(DarkPineGreen)
-                        .border(1.dp, AntiqueBronze.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                        .clickable { onOpenSettings() }
-                        .padding(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Tune,
-                        contentDescription = "Ajustes",
-                        tint = AntiqueBronzeBright,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = "R:${matchSettings.maxRoundsDisplay} · Escudo:${matchSettings.guardRounds}r · Atk:${matchSettings.maxAttacksPerTurn}",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = AntiqueBronzeBright,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
             }
 
             // Right Actions: Configuraciones, JUGAR, (+) Add Team
