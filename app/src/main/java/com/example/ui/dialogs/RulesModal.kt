@@ -98,14 +98,14 @@ fun RulesModal(
                         item {
                             RuleItem(
                                 title = "1. Roles de los Personajes",
-                                desc = "• Guerreros: Vanguardia defensiva que absorbe impactos y protege a sus aliados traseros.\n• Místicos: Línea media ofensiva y táctica. Su ataque básico solo ataca a los rivales, y sus Ultimates son habilidades especiales que benefician a su equipo o desbenefician al rival (reduciendo su defensa o su daño).\n• Magos: Retaguardia de gran poder arcano, cuyo ataque básico cura y restaura la salud de sus compañeros heridos."
+                                desc = "• Guerreros: Vanguardia defensiva que absorbe impactos y activa una barrera de guardia que protege a sus aliados traseros hasta la ronda 3 (rondas 1, 2 y 3).\n• Místicos: Línea media táctica y de apoyo. La duración de sus efectos se adapta al impacto de su Ultimate: 1 ronda para quiebres explosivos de defensa (Elysia, Lyra), 2 rondas para maldiciones continuas de desgaste (Malakor, Kaelen), y 3 rondas completas para la bendición de mayor impacto (Hermana Serena).\n• Magos: Retaguardia de gran poder arcano, cuyo ataque básico cura y restaura la salud de sus compañeros heridos."
                             )
                         }
 
                         item {
                             RuleItem(
-                                title = "2. Los 2 Tipos de Ataque",
-                                desc = "• Ataque Básico: Acción estándar del héroe. Causa daño directo al rival (o en el caso exclusivo del Mago, cura aliados).\n• Ataque Ultimate: Habilidad especial única de cada personaje (daño masivo, escudos, o en los Místicos, debilitar defensa/ataque enemigo y potenciar aliados)."
+                                title = "2. Los 2 Tipos de Ataque y Carga de Ultimate",
+                                desc = "• Ataque Básico: Acción estándar del héroe. Causa daño directo al rival (o cura en el caso del Mago). Cada disparo básico carga 1 punto de energía de Ultimate.\n• Ataque Ultimate: Habilidad especial devastadora única. Requiere haber realizado al menos 1 tiro previo para desbloquearse y desatar todo su poder."
                             )
                         }
 
@@ -125,8 +125,8 @@ fun RulesModal(
 
                         item {
                             RuleItem(
-                                title = "5. Protección de Vanguardia",
-                                desc = "Mientras un equipo tenga Guerreros vivos en el frente, sus Místicos y Magos estarán protegidos (🛡) y no podrán ser seleccionados como objetivo por los rivales."
+                                title = "5. Guardia de Vanguardia (Hasta Ronda 3)",
+                                desc = "Durante las 3 primeras rondas (Ronda 1, 2 y 3), los Guerreros vivos proporcionan un escudo protector (🛡) a sus Místicos y Magos, impidiendo que sean seleccionados como objetivo. A partir de la ronda 4 (o si todos los guerreros caen antes), la formación queda expuesta y cualquier objetivo puede ser atacado directamente."
                             )
                         }
 

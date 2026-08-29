@@ -39,6 +39,8 @@ fun BattleScreen(
     playerCount: Int,
     currentTurnPlayer: Int,
     roundNumber: Int,
+    maxRounds: Int = 10,
+    isUnlimitedRounds: Boolean = false,
     attacksUsedThisTurn: Int = 0,
     maxAttacksPerTurn: Int = 3,
     battleUnits: List<BattleUnit>,
@@ -108,7 +110,7 @@ fun BattleScreen(
                         )
                     )
                     Text(
-                        text = "· Ronda $roundNumber",
+                        text = "· Ronda $roundNumber${if (isUnlimitedRounds) "" else "/$maxRounds"}",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = WarmCreamMuted,
                             fontSize = 11.sp
@@ -276,8 +278,9 @@ fun BattleScreen(
                     .padding(top = 2.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
+                val guardStatus = if (roundNumber <= 3) "🛡 Vanguardia con Guardia activa (Ronda $roundNumber/3)" else "⚔ Guardia expirada (Retaguardia expuesta)"
                 Text(
-                    text = "Turno del Jugador $currentTurnPlayer: Elige hasta 3 ataques ($attacksRemaining restantes) · 🛡 Debes abatir a los Guerreros antes de dañar a Místicos y Magos",
+                    text = "Turno del Jugador $currentTurnPlayer: $attacksRemaining ataques · $guardStatus · ⚡ Ultimates desbloqueadas con 1 tiro previo",
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = SageOlive,
                         fontSize = 10.sp
@@ -289,11 +292,7 @@ fun BattleScreen(
 }
 
 private fun isUnitShielded(unit: BattleUnit, allUnits: List<BattleUnit>): Boolean {
-    if (!unit.isAlive) return false
-    if (unit.hero.role == com.example.model.HeroRole.GUERRERO) return false
-    return allUnits.any {
-        it.playerId == unit.playerId && it.hero.role == com.example.model.HeroRole.GUERRERO && it.isAlive
-    }
+    return com.example.engine.BattleRules.isUnitProtected(unit, allUnits)
 }
 
 @Composable

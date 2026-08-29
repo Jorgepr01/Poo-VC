@@ -17,6 +17,41 @@ public class Hero {
     private final String tacticalReason;
     private final String avatarEmoji;
     private final long colorAccentHex;
+    private final int strategyDiceCount;
+
+    public Hero(
+            String id,
+            String name,
+            String title,
+            String motto,
+            HeroRole role,
+            int hp,
+            int attack,
+            int defense,
+            String description,
+            String abilityName,
+            String abilityDescription,
+            String tacticalReason,
+            String avatarEmoji,
+            long colorAccentHex,
+            int strategyDiceCount
+    ) {
+        this.id = id;
+        this.name = name;
+        this.title = title != null ? title : "";
+        this.motto = motto != null ? motto : "";
+        this.role = role;
+        this.hp = hp;
+        this.attack = attack;
+        this.defense = defense;
+        this.description = description;
+        this.abilityName = abilityName;
+        this.abilityDescription = abilityDescription;
+        this.tacticalReason = tacticalReason != null ? tacticalReason : "";
+        this.avatarEmoji = avatarEmoji;
+        this.colorAccentHex = colorAccentHex;
+        this.strategyDiceCount = strategyDiceCount <= 1 ? 1 : 2;
+    }
 
     public Hero(
             String id,
@@ -34,20 +69,7 @@ public class Hero {
             String avatarEmoji,
             long colorAccentHex
     ) {
-        this.id = id;
-        this.name = name;
-        this.title = title != null ? title : "";
-        this.motto = motto != null ? motto : "";
-        this.role = role;
-        this.hp = hp;
-        this.attack = attack;
-        this.defense = defense;
-        this.description = description;
-        this.abilityName = abilityName;
-        this.abilityDescription = abilityDescription;
-        this.tacticalReason = tacticalReason != null ? tacticalReason : "";
-        this.avatarEmoji = avatarEmoji;
-        this.colorAccentHex = colorAccentHex;
+        this(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, colorAccentHex, 2);
     }
 
     public Hero(
@@ -65,7 +87,26 @@ public class Hero {
             String tacticalReason,
             String avatarEmoji
     ) {
-        this(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, role.getColorHex());
+        this(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, role.getColorHex(), 2);
+    }
+
+    public Hero(
+            String id,
+            String name,
+            String title,
+            String motto,
+            HeroRole role,
+            int hp,
+            int attack,
+            int defense,
+            String description,
+            String abilityName,
+            String abilityDescription,
+            String tacticalReason,
+            String avatarEmoji,
+            int strategyDiceCount
+    ) {
+        this(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, role.getColorHex(), strategyDiceCount);
     }
 
     public Hero(
@@ -80,7 +121,7 @@ public class Hero {
             String abilityDescription,
             String avatarEmoji
     ) {
-        this(id, name, "", "", role, hp, attack, defense, description, abilityName, abilityDescription, abilityDescription, avatarEmoji, role.getColorHex());
+        this(id, name, "", "", role, hp, attack, defense, description, abilityName, abilityDescription, abilityDescription, avatarEmoji, role.getColorHex(), 2);
     }
 
     public String getId() {
@@ -140,7 +181,23 @@ public class Hero {
     }
 
     public String getStrategyDesc() {
-        return "Minijuego táctico de dados 2d6 (+15% Ataque si acierta).";
+        if (strategyDiceCount == 1) {
+            return "Minijuego táctico 1d6 ROTO (1-6): ¡Bonificación demoledora (+35% Daño) si aciertas!";
+        } else {
+            return "Minijuego táctico 2d6 (2-12): Bonificación estratégica (+15% Daño) si aciertas.";
+        }
+    }
+
+    public int getStrategyDiceCount() {
+        return strategyDiceCount;
+    }
+
+    public boolean isBrokenStrategy() {
+        return strategyDiceCount == 1;
+    }
+
+    public float getStrategyBonusMultiplier() {
+        return strategyDiceCount == 1 ? 0.35f : 0.15f;
     }
 
     public String getAvatarEmoji() {
@@ -172,6 +229,7 @@ public class Hero {
                 attack == hero.attack &&
                 defense == hero.defense &&
                 colorAccentHex == hero.colorAccentHex &&
+                strategyDiceCount == hero.strategyDiceCount &&
                 Objects.equals(id, hero.id) &&
                 Objects.equals(name, hero.name) &&
                 Objects.equals(title, hero.title) &&
@@ -186,7 +244,7 @@ public class Hero {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, colorAccentHex);
+        return Objects.hash(id, name, title, motto, role, hp, attack, defense, description, abilityName, abilityDescription, tacticalReason, avatarEmoji, colorAccentHex, strategyDiceCount);
     }
 
     @Override

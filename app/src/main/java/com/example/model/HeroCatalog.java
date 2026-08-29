@@ -26,7 +26,8 @@ public final class HeroCatalog {
                 "Muro Inquebrantable",
                 "Mitiga daño y blinda la vanguardia con armadura consagrada.",
                 "Ideal para absorber castigo en vanguardia gracias a su altísima defensa de 85 y protección frontal activa a sus aliados.",
-                "🛡️"
+                "🛡️",
+                2
         ));
         warriors.add(new Hero(
                 "g_barbarian",
@@ -40,8 +41,9 @@ public final class HeroCatalog {
                 "Bárbaro colosal forjado en el hielo con una demoledora hacha doble.",
                 "Golpe Hendiente",
                 "Impactos feroces que desgarran armaduras y quiebran formaciones.",
-                "Excelente para jugadores agresivos: tiene la mayor cantidad de vida (520 HP) y alto daño físico (135 ATK) para presionar de inmediato.",
-                "🪓"
+                "Excelente para jugadores agresivos: tiene la mayor cantidad de vida (520 HP), alto daño físico (135 ATK) y estrategia rota 1d6 (+35% Daño).",
+                "🪓",
+                1
         ));
         warriors.add(new Hero(
                 "g_knight",
@@ -56,7 +58,8 @@ public final class HeroCatalog {
                 "Estocada Sagrada",
                 "Cortes milimétricos de precisión con alta probabilidad crítica.",
                 "El guerrero más equilibrado: sólida defensa (80 DEF) con versatilidad para responder en cualquier etapa del combate.",
-                "⚔️"
+                "⚔️",
+                2
         ));
         warriors.add(new Hero(
                 "g_guardian",
@@ -70,8 +73,9 @@ public final class HeroCatalog {
                 "Veterano mercenario con lanza larga capaz de doblegar escuadrones.",
                 "Rompefilas",
                 "Carga con lanza capaz de desestabilizar posiciones defensivas.",
-                "El mejor rompe-tanques: 500 HP y lanza pesada diseñada para castigar a los oponentes con alta armadura.",
-                "🗡️"
+                "El mejor rompe-tanques: 500 HP y lanza pesada con estrategia rota 1d6 (+35% Daño) para quebrar blindajes.",
+                "🗡️",
+                1
         ));
         GUERREROS = Collections.unmodifiableList(warriors);
 
@@ -87,9 +91,10 @@ public final class HeroCatalog {
                 45,
                 "Sacerdotisa mística que manipula los rayos solares para debilitar rivales.",
                 "Juicio Solar",
-                "Haz de luz concentrada que reduce severamente la defensa enemiga (-35% DEF).",
-                "La elección perfecta para debilitar muros defensivos enemigos y preparar el terreno para los remates de tus atacantes.",
-                "☀️"
+                "Haz de luz concentrada que calcina la armadura enemiga (-35% DEF durante 1 ronda de vulnerabilidad).",
+                "La elección perfecta para debilitar muros defensivos enemigos y preparar remates letales en el turno.",
+                "☀️",
+                2
         ));
         mystics.add(new Hero(
                 "m_shadow",
@@ -102,9 +107,10 @@ public final class HeroCatalog {
                 40,
                 "Brujo del abismo experto en maldiciones oscuras y drenaje de vigor.",
                 "Maldición Umbría",
-                "Entropía oscura que desgasta y aminora el ataque y defensa rival.",
-                "El mejor místico ofensivo con 140 ATK, ideal para neutralizar a la principal amenaza enemiga mermando sus estadísticas.",
-                "🌑"
+                "Entropía oscura devastadora que aminora el ataque y defensa rival (-25% ATK/DEF durante 2 rondas).",
+                "El mejor místico ofensivo con 140 ATK y estrategia rota 1d6 (+35% Daño) para aniquilar amenazas.",
+                "🌑",
+                1
         ));
         mystics.add(new Hero(
                 "m_bard",
@@ -117,9 +123,10 @@ public final class HeroCatalog {
                 50,
                 "Barda oracular con arpa rúnica que altera el destino y el flujo del combate.",
                 "Réquiem Arcano",
-                "Onda sónica armónica que distorsiona las tácticas del adversario.",
-                "Mayor resistencia en línea media (50 DEF) combinada con gran control de batalla para desgastar al rival sostenidamente.",
-                "🔮"
+                "Onda sónica armónica que distorsiona las tácticas del adversario (-25% DEF durante 1 ronda).",
+                "Mayor resistencia en línea media (50 DEF) combinada con control de combate para abrir brechas tácticas.",
+                "🔮",
+                2
         ));
         mystics.add(new Hero(
                 "m_druid",
@@ -132,9 +139,10 @@ public final class HeroCatalog {
                 48,
                 "Druida que convoca la furia de las raíces y la fuerza de la tierra ancestral.",
                 "Zarza Ancestral",
-                "Espinas místicas que desgastan el ataque del oponente (-30% ATK).",
+                "Espinas místicas que desgastan el ataque del oponente (-30% ATK durante 2 rondas).",
                 "Vital contra equipos con bárbaros o magos explosivos: neutraliza la potencia del mayor atacante enemigo.",
-                "🌿"
+                "🌿",
+                2
         ));
         mystics.add(new Hero(
                 "m_cleric",
@@ -147,9 +155,10 @@ public final class HeroCatalog {
                 52,
                 "Clériga devota que potencia la moral y fortaleza de sus camaradas.",
                 "Bendición Heroica",
-                "Otorga +25% de ataque y defensa a todos los aliados vivos.",
+                "Otorga +25% de ataque y +20% defensa a todos los aliados vivos durante 3 rondas (Gran Bendición).",
                 "La mejor opción de soporte global: potencia simultáneamente la resistencia y letalidad de toda tu escuadra.",
-                "✨"
+                "✨",
+                2
         ));
         MISTICOS = Collections.unmodifiableList(mystics);
 
@@ -166,8 +175,9 @@ public final class HeroCatalog {
                 "Maestro del fuego primordial con devastación explosiva y cauterización regenerativa.",
                 "Maelstrom Ígneo",
                 "Lanza tormentas incandescentes o canaliza calor restaurador.",
-                "Mago demoledor híbrido: inflige 175 ATK en área o salva a tu vanguardia con potentes curaciones tácticas.",
-                "🔥"
+                "Mago demoledor híbrido: 175 ATK con estrategia rota 1d6 (+35% Daño) o potentes curaciones tácticas.",
+                "🔥",
+                1
         ));
         mages.add(new Hero(
                 "w_storm",
@@ -181,8 +191,9 @@ public final class HeroCatalog {
                 "Invocador de relámpagos celestes y centellas de alto poder destructivo.",
                 "Tormenta de Rayos",
                 "Golpea a múltiples objetivos con descargas eléctricas de choque.",
-                "El máximo portador de daño del torneo con 185 ATK. Ideal para acabar con formaciones enemigas en pocos turnos.",
-                "⚡"
+                "El máximo portador de daño del torneo con 185 ATK y estrategia rota 1d6 (+35% Daño).",
+                "⚡",
+                1
         ));
         mages.add(new Hero(
                 "w_frost",
@@ -197,7 +208,8 @@ public final class HeroCatalog {
                 "Ventisca Glacial",
                 "Vientos polares dañinos y regeneración profunda de frío puro.",
                 "La maga más resistente (330 HP / 40 DEF) y con la curación más consistente para partidas largas de desgaste.",
-                "❄️"
+                "❄️",
+                2
         ));
         mages.add(new Hero(
                 "w_astral",
@@ -211,8 +223,9 @@ public final class HeroCatalog {
                 "Astrólogo arcano que invoca la gravedad cósmica y supernovas arcanas.",
                 "Cataclismo Astral",
                 "Explosión cósmica que fractura el destino del combate.",
-                "Inmenso poder de ráfaga (180 ATK) y versatilidad mística para definir los momentos más críticos del duelo.",
-                "🌌"
+                "Inmenso poder de ráfaga (180 ATK) con estrategia rota 1d6 (+35% Daño) para definir momentos críticos.",
+                "🌌",
+                1
         ));
         MAGOS = Collections.unmodifiableList(mages);
 

@@ -118,7 +118,7 @@ public final class CombatAiLogic {
         });
 
         AttackType attackType = AttackType.BASIC;
-        if (currentRound >= 3 && Math.random() < 0.4) {
+        if (attacker.canUseUltimate() && Math.random() < 0.6) {
             attackType = AttackType.ULTIMATE;
         }
 

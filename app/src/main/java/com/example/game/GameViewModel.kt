@@ -38,6 +38,10 @@ data class GameUiState(
     val winnerPlayerId: Int? = null,
     val matchIsOver: Boolean = false,
     
+    // Match Configuration Settings
+    val matchSettings: MatchSettings = MatchSettings.DEFAULT,
+    val isSettingsModalOpen: Boolean = false,
+
     // Modal states
     val isRulesModalOpen: Boolean = false,
     val isCreateTeamModalOpen: Boolean = false,
@@ -61,11 +65,13 @@ data class GameUiState(
     val isHealMode: Boolean = false, // Magos / Místicos can heal allies
     val isTargetSelectorOpen: Boolean = false,
     
-    // Strategy Minigame
+    // Strategy Minigame & Round limits (1 per player per round)
+    val strategyUsedByPlayersThisRound: Set<Int> = emptySet(),
     val isStrategyModalOpen: Boolean = false,
-    val strategySelectedNumber: Int = 1,
+    val strategyDiceCount: Int = 2,
+    val strategySelectedNumber: Int = 7,
     val isStrategyRolling: Boolean = false,
-    val strategyDisplayNumber: Int = 1,
+    val strategyDisplayNumber: Int = 7,
     val strategyRollFinished: Boolean = false,
     val strategyOutcome: StrategyRollResult? = null,
 
@@ -105,6 +111,14 @@ class GameViewModel : ViewModel() {
 
     fun openRules(open: Boolean) {
         _uiState.update { it.copy(isRulesModalOpen = open) }
+    }
+
+    fun openSettings(open: Boolean) {
+        _uiState.update { it.copy(isSettingsModalOpen = open) }
+    }
+
+    fun updateMatchSettings(settings: MatchSettings) {
+        _uiState.update { it.copy(matchSettings = settings) }
     }
 
     fun openAbandonConfirm(open: Boolean) {
@@ -289,17 +303,18 @@ class GameViewModel : ViewModel() {
     fun startBattle() {
         val state = _uiState.value
         val count = state.playerCount
+        val settings = state.matchSettings
         val units = mutableListOf<BattleUnit>()
 
         val team1 = state.selectedTeams[1] ?: state.allTeams[0]
-        units.addAll(createFormationUnits(playerId = 1, team = team1))
+        units.addAll(createFormationUnits(playerId = 1, team = team1, guardRounds = settings.guardRounds, hpMultiplier = settings.hpMultiplier))
 
         val team2 = state.selectedTeams[2] ?: state.allTeams[1 % state.allTeams.size]
-        units.addAll(createFormationUnits(playerId = 2, team = team2))
+        units.addAll(createFormationUnits(playerId = 2, team = team2, guardRounds = settings.guardRounds, hpMultiplier = settings.hpMultiplier))
 
         if (count >= 3) {
             val team3 = state.selectedTeams[3] ?: state.allTeams[2 % state.allTeams.size]
-            units.addAll(createPlayer3FormationUnits(playerId = 3, team = team3))
+            units.addAll(createFormationUnits(playerId = 3, team = team3, guardRounds = settings.guardRounds, hpMultiplier = settings.hpMultiplier))
         }
 
         _uiState.update {
@@ -309,7 +324,8 @@ class GameViewModel : ViewModel() {
                 currentTurnPlayer = 1,
                 roundNumber = 1,
                 attacksUsedThisTurn = 0,
-                maxAttacksPerTurn = BattleRules.MAX_ATTACKS_PER_TURN,
+                strategyUsedByPlayersThisRound = emptySet(),
+                maxAttacksPerTurn = settings.maxAttacksPerTurn,
                 winnerPlayerId = null,
                 matchIsOver = false,
                 isAttackModalOpen = false,
@@ -321,35 +337,74 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun createFormationUnits(playerId: Int, team: Team): List<BattleUnit> {
+    private fun createFormationUnits(
+        playerId: Int,
+        team: Team,
+        guardRounds: Int = 3,
+        hpMultiplier: Float = 1.0f
+    ): List<BattleUnit> {
         val list = mutableListOf<BattleUnit>()
         var unitIndex = 0
 
         team.guerreros.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Guerreros"))
+            val scaledHp = (hero.hp * hpMultiplier).toInt().coerceAtLeast(10)
+            list.add(
+                BattleUnit(
+                    "p${playerId}_u${unitIndex++}",
+                    playerId,
+                    list.size,
+                    hero,
+                    scaledHp,
+                    scaledHp,
+                    true,
+                    false,
+                    0f,
+                    0f,
+                    "Guerreros",
+                    0,
+                    guardRounds
+                )
+            )
         }
         team.misticos.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Místicos"))
+            val scaledHp = (hero.hp * hpMultiplier).toInt().coerceAtLeast(10)
+            list.add(
+                BattleUnit(
+                    "p${playerId}_u${unitIndex++}",
+                    playerId,
+                    list.size,
+                    hero,
+                    scaledHp,
+                    scaledHp,
+                    true,
+                    false,
+                    0f,
+                    0f,
+                    "Místicos",
+                    0,
+                    0
+                )
+            )
         }
         team.magos.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Magos"))
-        }
-
-        return list
-    }
-
-    private fun createPlayer3FormationUnits(playerId: Int, team: Team): List<BattleUnit> {
-        val list = mutableListOf<BattleUnit>()
-        var unitIndex = 0
-
-        team.guerreros.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Guerreros"))
-        }
-        team.misticos.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Místicos"))
-        }
-        team.magos.forEach { hero ->
-            list.add(BattleUnit("p${playerId}_u${unitIndex++}", playerId, list.size, hero, "Magos"))
+            val scaledHp = (hero.hp * hpMultiplier).toInt().coerceAtLeast(10)
+            list.add(
+                BattleUnit(
+                    "p${playerId}_u${unitIndex++}",
+                    playerId,
+                    list.size,
+                    hero,
+                    scaledHp,
+                    scaledHp,
+                    true,
+                    false,
+                    0f,
+                    0f,
+                    "Magos",
+                    0,
+                    0
+                )
+            )
         }
 
         return list
@@ -449,16 +504,23 @@ class GameViewModel : ViewModel() {
     }
 
     fun setAttackType(type: AttackType) {
-        _uiState.update { state ->
-            if (type == AttackType.ULTIMATE) {
-                state.copy(
+        val state = _uiState.value
+        val attacker = state.battleUnits.find { it.id == state.selectedAttackerId }
+        val requiredShots = state.matchSettings.ultimateRequiredShots
+        if (type == AttackType.ULTIMATE) {
+            if (attacker != null && attacker.shotsPerformed < requiredShots) {
+                showFloatingNotice("¡Requiere al menos $requiredShots ${if (requiredShots == 1) "tiro previo" else "tiros previos"} para desbloquear la Ultimate!")
+                return
+            }
+            _uiState.update {
+                it.copy(
                     selectedAttackType = type,
                     activeStrategyBonus = null,
                     isStrategyModalOpen = false
                 )
-            } else {
-                state.copy(selectedAttackType = type)
             }
+        } else {
+            _uiState.update { it.copy(selectedAttackType = type) }
         }
     }
 
@@ -536,18 +598,31 @@ class GameViewModel : ViewModel() {
     // --- Strategy Minigame (Java StrategyEngine) ---
     fun openStrategyMinigame() {
         val state = _uiState.value
+        if (!state.matchSettings.allowStrategyMinigame) {
+            showFloatingNotice("El minijuego de estrategia está deshabilitado en esta partida.")
+            return
+        }
         if (state.selectedAttackType == AttackType.ULTIMATE) {
             showFloatingNotice("La estrategia solo está disponible para ataques básicos")
             return
         }
+        if (state.strategyUsedByPlayersThisRound.contains(state.currentTurnPlayer)) {
+            showFloatingNotice("¡Tu equipo ya usó la estrategia en esta ronda (máximo 1 uso por equipo por ronda)!")
+            return
+        }
+        val attacker = state.battleUnits.find { it.id == state.selectedAttackerId }
+        val diceCount = attacker?.hero?.strategyDiceCount ?: 2
+        val defaultNumber = if (diceCount == 1) 3 else 7
+
         _uiState.update {
             it.copy(
                 isStrategyModalOpen = true,
-                strategySelectedNumber = 3,
+                strategyDiceCount = diceCount,
+                strategySelectedNumber = defaultNumber,
                 isStrategyRolling = false,
                 strategyRollFinished = false,
                 strategyOutcome = null,
-                strategyDisplayNumber = 3
+                strategyDisplayNumber = defaultNumber
             )
         }
     }
@@ -559,39 +634,65 @@ class GameViewModel : ViewModel() {
     }
 
     fun executeStrategyRoll() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isStrategyRolling = true) }
+        val playerUsingStrategy = _uiState.value.currentTurnPlayer
+        val diceCount = _uiState.value.strategyDiceCount
+        val chosen = _uiState.value.strategySelectedNumber
+        val finalRoll = StrategyEngine.generateRoll(diceCount, chosen)
+        val outcome = StrategyEngine.evaluateRoll(diceCount, chosen, finalRoll)
+        val updatedUsedSet = _uiState.value.strategyUsedByPlayersThisRound + playerUsingStrategy
 
-            val chosen = _uiState.value.strategySelectedNumber
+        _uiState.update {
+            it.copy(
+                isStrategyRolling = true,
+                strategyOutcome = outcome,
+                activeStrategyBonus = outcome,
+                strategyUsedByPlayersThisRound = updatedUsedSet
+            )
+        }
+
+        viewModelScope.launch {
             val rollTime = 600L
             val steps = 8
+            val minRoll = if (diceCount == 1) 1 else 2
+            val maxRoll = if (diceCount == 1) 6 else 12
             for (i in 0 until steps) {
-                val rand = (1..6).random()
+                val rand = (minRoll..maxRoll).random()
                 _uiState.update { it.copy(strategyDisplayNumber = rand) }
                 delay(rollTime / steps)
             }
-
-            val finalRoll = StrategyEngine.generateRoll(chosen)
-            val outcome = StrategyEngine.evaluateRoll(chosen, finalRoll)
 
             _uiState.update {
                 it.copy(
                     isStrategyRolling = false,
                     strategyRollFinished = true,
                     strategyDisplayNumber = finalRoll,
-                    strategyOutcome = outcome
+                    strategyOutcome = outcome,
+                    activeStrategyBonus = outcome,
+                    strategyUsedByPlayersThisRound = updatedUsedSet
                 )
+            }
+
+            // Show result animation/banner, then directly execute the attack against the target(s)
+            delay(1400L)
+            if (_uiState.value.isStrategyModalOpen) {
+                executeAttack()
             }
         }
     }
 
     fun confirmStrategyBonus() {
-        val outcome = _uiState.value.strategyOutcome
+        val playerUsingStrategy = _uiState.value.currentTurnPlayer
+        val updatedUsedSet = _uiState.value.strategyUsedByPlayersThisRound + playerUsingStrategy
         _uiState.update {
             it.copy(
-                isStrategyModalOpen = false,
-                activeStrategyBonus = outcome
+                isStrategyRolling = false,
+                strategyRollFinished = true,
+                strategyUsedByPlayersThisRound = updatedUsedSet
             )
+        }
+        // Direct tap skips timer and executes attack immediately
+        if (_uiState.value.isStrategyModalOpen) {
+            executeAttack()
         }
     }
 
@@ -608,6 +709,13 @@ class GameViewModel : ViewModel() {
         val updatedUnits = state.battleUnits.toMutableList()
         val newFloatingTexts = mutableListOf<FloatingCombatText>()
 
+        val strategyTag = when {
+            strategyBonus >= 0.20f -> " ★ +${(strategyBonus * 100).toInt()}% Estrategia ROTA"
+            strategyBonus > 0f -> " ★ +${(strategyBonus * 100).toInt()}% Estrategia"
+            strategyBonus < 0f -> " ⚡ -5% Estrategia"
+            else -> ""
+        }
+
         if (state.isHealMode) {
             val baseHeal = CombatCalculator.calculateHeal(attacker, targetCount, strategyBonus, isUltimate)
 
@@ -623,7 +731,7 @@ class GameViewModel : ViewModel() {
                         FloatingCombatText(
                             System.currentTimeMillis() + targetIndex,
                             targetId,
-                            "+$actualHeal HP!",
+                            "+$actualHeal HP!$strategyTag",
                             strategyBonus > 0f || isUltimate,
                             true
                         )
@@ -634,17 +742,18 @@ class GameViewModel : ViewModel() {
             val isMysticUltimate = isUltimate && attacker.hero.role == HeroRole.MISTICO
 
             if (isMysticUltimate && attacker.hero.id == "m_cleric") {
+                // Blessing of Serena is the highest impact support ultimate in the game -> lasts 3 full rounds
                 updatedUnits.indices.forEach { idx ->
                     val unit = updatedUnits[idx]
                     if (unit.playerId == attacker.playerId && unit.isAlive) {
                         val newAtkBuff = (unit.attackBuffPct + 0.25f).coerceAtMost(1.0f)
                         val newDefBuff = (unit.defenseBuffPct + 0.20f).coerceAtMost(1.0f)
-                        updatedUnits[idx] = unit.copyWithBuffs(newAtkBuff, newDefBuff)
+                        updatedUnits[idx] = unit.copyWithBuffs(newAtkBuff, newDefBuff, 3)
                         newFloatingTexts.add(
                             FloatingCombatText(
                                 System.currentTimeMillis() + 500 + idx,
                                 unit.id,
-                                "+25% ATK/DEF!",
+                                "+25% ATK/DEF (3r)!",
                                 true,
                                 true
                             )
@@ -663,41 +772,54 @@ class GameViewModel : ViewModel() {
                     var updatedDefBuff = target.defenseBuffPct
                     var updatedAtkBuff = target.attackBuffPct
                     var debuffText = ""
+                    var mysticBuffDuration = 2
 
                     if (isMysticUltimate) {
                         when (attacker.hero.id) {
                             "m_solar" -> {
                                 updatedDefBuff = (target.defenseBuffPct - 0.35f).coerceAtLeast(-0.80f)
-                                debuffText = "-35% DEF!"
+                                debuffText = "-35% DEF (1r)!"
+                                mysticBuffDuration = 1
                             }
                             "m_druid" -> {
                                 updatedAtkBuff = (target.attackBuffPct - 0.30f).coerceAtLeast(-0.80f)
-                                debuffText = "-30% ATK!"
+                                debuffText = "-30% ATK (2r)!"
+                                mysticBuffDuration = 2
                             }
                             "m_shadow" -> {
                                 updatedDefBuff = (target.defenseBuffPct - 0.25f).coerceAtLeast(-0.80f)
                                 updatedAtkBuff = (target.attackBuffPct - 0.25f).coerceAtLeast(-0.80f)
-                                debuffText = "-25% ATK/DEF!"
+                                debuffText = "-25% ATK/DEF (2r)!"
+                                mysticBuffDuration = 2
+                            }
+                            "m_bard" -> {
+                                updatedDefBuff = (target.defenseBuffPct - 0.25f).coerceAtLeast(-0.80f)
+                                debuffText = "-25% DEF (1r)!"
+                                mysticBuffDuration = 1
                             }
                             else -> {
                                 updatedDefBuff = (target.defenseBuffPct - 0.25f).coerceAtLeast(-0.80f)
-                                debuffText = "-25% DEF!"
+                                debuffText = "-25% DEF (1r)!"
+                                mysticBuffDuration = 1
                             }
                         }
                     }
 
+                    val buffRounds = if (isMysticUltimate) mysticBuffDuration else target.buffRoundsRemaining
                     val updatedTarget = target.copy(
                         null, null, null, null,
                         newHp, null, newHp > 0, null,
-                        updatedAtkBuff, updatedDefBuff, null
+                        updatedAtkBuff, updatedDefBuff, null,
+                        null, null, buffRounds
                     )
                     updatedUnits[targetIndex] = updatedTarget
 
+                    val combatMessage = if (debuffText.isNotEmpty()) "-$netDamage HP ($debuffText)" else "-$netDamage HP!$strategyTag"
                     newFloatingTexts.add(
                         FloatingCombatText(
                             System.currentTimeMillis() + targetIndex,
                             targetId,
-                            if (debuffText.isNotEmpty()) "-$netDamage HP ($debuffText)" else "-$netDamage HP!",
+                            combatMessage,
                             strategyBonus > 0f || isUltimate,
                             false
                         )
@@ -708,10 +830,12 @@ class GameViewModel : ViewModel() {
 
         val attackerIndex = updatedUnits.indexOfFirst { it.id == attacker.id }
         if (attackerIndex >= 0) {
+            val newShots = if (isUltimate) 0 else attacker.shotsPerformed + 1
             updatedUnits[attackerIndex] = attacker.copy(
                 null, null, null, null,
                 null, null, null, true,
-                0f, null, null
+                0f, null, null,
+                newShots, null
             )
         }
 
@@ -722,6 +846,7 @@ class GameViewModel : ViewModel() {
                 battleUnits = updatedUnits,
                 attacksUsedThisTurn = newAttacksUsed,
                 isAttackModalOpen = false,
+                isStrategyModalOpen = false,
                 selectedAttackerId = null,
                 selectedTargetIds = emptyList(),
                 activeStrategyBonus = null,
@@ -779,6 +904,25 @@ class GameViewModel : ViewModel() {
 
         val isNewRound = nextPlayer <= state.currentTurnPlayer
         val nextRound = if (isNewRound) state.roundNumber + 1 else state.roundNumber
+        val updatedStrategyUsed = if (isNewRound) emptySet<Int>() else state.strategyUsedByPlayersThisRound
+
+        if (isNewRound && !state.matchSettings.isUnlimitedRounds && nextRound > state.matchSettings.maxRounds) {
+            // Match completed all allowed rounds! Determine winner by highest remaining total HP
+            val playerHps = (1..count).map { p ->
+                val totalHp = state.battleUnits.filter { it.playerId == p && it.isAlive }.sumOf { it.currentHp }
+                p to totalHp
+            }
+            val winner = playerHps.maxByOrNull { it.second }?.first ?: 1
+            _uiState.update {
+                it.copy(
+                    winnerPlayerId = winner,
+                    matchIsOver = true,
+                    isVictoryModalOpen = true,
+                    roundNumber = state.matchSettings.maxRounds
+                )
+            }
+            return
+        }
 
         // Refresh units for the next player so they can use all their living heroes in this round.
         // If a new round begins, all units across all teams are refreshed as well.
@@ -793,6 +937,7 @@ class GameViewModel : ViewModel() {
                 currentTurnPlayer = nextPlayer,
                 roundNumber = nextRound,
                 attacksUsedThisTurn = 0,
+                strategyUsedByPlayersThisRound = updatedStrategyUsed,
                 battleUnits = refreshedUnits
             )
         }

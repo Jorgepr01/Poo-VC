@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.model.MatchSettings
 import com.example.model.Team
 import com.example.ui.components.MedievalButton
 import com.example.ui.components.MedievalIconButton
@@ -34,9 +35,10 @@ fun LobbyScreen(
     playerCount: Int,
     allTeams: List<Team>,
     selectedTeams: Map<Int, Team>,
+    matchSettings: MatchSettings = MatchSettings.DEFAULT,
     onPlayerCountChanged: (Int) -> Unit,
     onTeamSelectedForPlayer: (Int, Team) -> Unit,
-    onOpenRules: () -> Unit,
+    onOpenSettings: () -> Unit,
     onOpenCreateTeam: () -> Unit,
     onStartBattle: () -> Unit,
     onBackToTitle: () -> Unit,
@@ -48,7 +50,7 @@ fun LobbyScreen(
             .background(DeepSlate)
             .padding(horizontal = 20.dp, vertical = 10.dp)
     ) {
-        // Top Navigation & Action Bar (matches wireframe: Play | 2/3 players | Reglas | Jugar | +)
+        // Top Navigation & Action Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +58,7 @@ fun LobbyScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left: Back button + Title "Play"
+            // Left: Back button + Title "Play" + Player count toggle
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -123,17 +125,44 @@ fun LobbyScreen(
                         )
                     }
                 }
+
+                // Settings Summary Badge
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(DarkPineGreen)
+                        .border(1.dp, AntiqueBronze.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                        .clickable { onOpenSettings() }
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = "Ajustes",
+                        tint = AntiqueBronzeBright,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "R:${matchSettings.maxRoundsDisplay} · Escudo:${matchSettings.guardRounds}r · Atk:${matchSettings.maxAttacksPerTurn}",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = AntiqueBronzeBright,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
             }
 
-            // Right Actions: Reglas, JUGAR, (+) Add Team
+            // Right Actions: Configuraciones, JUGAR, (+) Add Team
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 MedievalSecondaryButton(
-                    text = "Reglas",
-                    onClick = onOpenRules,
-                    leadingIcon = Icons.Default.MenuBook
+                    text = "Configuraciones",
+                    onClick = onOpenSettings,
+                    leadingIcon = Icons.Default.Settings
                 )
 
                 MedievalButton(

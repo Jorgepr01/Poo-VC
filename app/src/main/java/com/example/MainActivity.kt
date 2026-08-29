@@ -97,9 +97,10 @@ fun TacticalRpgApp(
                         playerCount = state.playerCount,
                         allTeams = state.allTeams,
                         selectedTeams = state.selectedTeams,
+                        matchSettings = state.matchSettings,
                         onPlayerCountChanged = { viewModel.setPlayerCount(it) },
                         onTeamSelectedForPlayer = { p, t -> viewModel.selectTeamForPlayer(p, t) },
-                        onOpenRules = { viewModel.openRules(true) },
+                        onOpenSettings = { viewModel.openSettings(true) },
                         onOpenCreateTeam = { viewModel.openCreateTeamModal() },
                         onStartBattle = { viewModel.startBattle() },
                         onBackToTitle = { viewModel.navigateTo(GameScreen.TITLE) }
@@ -121,6 +122,8 @@ fun TacticalRpgApp(
                         playerCount = state.playerCount,
                         currentTurnPlayer = state.currentTurnPlayer,
                         roundNumber = state.roundNumber,
+                        maxRounds = state.matchSettings.maxRounds,
+                        isUnlimitedRounds = state.matchSettings.isUnlimitedRounds,
                         attacksUsedThisTurn = state.attacksUsedThisTurn,
                         maxAttacksPerTurn = state.maxAttacksPerTurn,
                         battleUnits = state.battleUnits,
@@ -135,6 +138,19 @@ fun TacticalRpgApp(
             }
 
             // --- Modals and Overlays ---
+
+            // 0. Settings Modal
+            if (state.isSettingsModalOpen) {
+                SettingsModal(
+                    currentSettings = state.matchSettings,
+                    onSaveSettings = { viewModel.updateMatchSettings(it) },
+                    onViewRules = {
+                        viewModel.openSettings(false)
+                        viewModel.openRules(true)
+                    },
+                    onDismiss = { viewModel.openSettings(false) }
+                )
+            }
 
             // 1. Rules Modal
             if (state.isRulesModalOpen) {
@@ -176,6 +192,7 @@ fun TacticalRpgApp(
                 }
 
                 if (attacker != null) {
+                    val playerTeamNames = state.selectedTeams.mapValues { it.value.name }
                     AttackModal(
                         attacker = attacker,
                         targetUnits = if (state.isHealMode) livingAllies else targetableOpponents,
@@ -187,6 +204,9 @@ fun TacticalRpgApp(
                         isHealMode = state.isHealMode,
                         isTargetSelectorOpen = state.isTargetSelectorOpen,
                         strategyBonus = state.activeStrategyBonus,
+                        isStrategyUsedThisRound = state.strategyUsedByPlayersThisRound.contains(state.currentTurnPlayer),
+                        isStrategyMinigameAllowed = state.matchSettings.allowStrategyMinigame,
+                        playerTeamNames = playerTeamNames,
                         onAttackTypeChanged = { viewModel.setAttackType(it) },
                         onTargetCountLimitChanged = { viewModel.setTargetCountLimit(it) },
                         onHealModeChanged = { viewModel.setIsHealMode(it) },
@@ -207,6 +227,7 @@ fun TacticalRpgApp(
                     displayNumber = state.strategyDisplayNumber,
                     isFinished = state.strategyRollFinished,
                     outcome = state.strategyOutcome,
+                    diceCount = state.strategyDiceCount,
                     onSelectNumber = { viewModel.selectStrategyNumber(it) },
                     onRollClicked = { viewModel.executeStrategyRoll() },
                     onConfirmBonus = { viewModel.confirmStrategyBonus() },
